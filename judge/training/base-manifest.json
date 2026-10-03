@@ -1,0 +1,7 @@
+{
+  "repository": "Mapika/decider-4b",
+  "revision": "eb5fbdfc9448473ec25e399882912863afbdb70e",
+  "format": "BF16",
+  "training_runtime": "MLX",
+  "deployment_default_unchanged": true
+}

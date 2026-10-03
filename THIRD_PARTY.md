@@ -15,3 +15,7 @@ The root MIT license covers original EP AI DLP work, not every dependency.
 See [native notices](native/THIRD_PARTY.md). Vendored repositories are flattened
 source snapshots, not Git submodules. No complete binary installer or
 production distribution compliance assessment is provided by this preview.
+
+## Local decision-model research
+
+Jev inspired the decision-model approach; this repository does not include or call the proprietary Jev service by default and does not claim affiliation. Public model checkpoints and their licenses remain with their publishers. Pinned Hugging Face repository IDs/revisions and download hashes are recorded in `research/judge-models/` and `research/judge-candidates/`. Weights and trained adapters are not redistributed in this source commit. Inspect the applicable checkpoint license before downloading or deploying. The original synthetic DLP corpus and experiment code are included; the corpus contains authored fictional records, not customer documents.

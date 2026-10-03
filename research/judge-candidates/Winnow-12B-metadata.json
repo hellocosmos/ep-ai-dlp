@@ -1,0 +1,38 @@
+{
+  "id": "EldanRing/Winnow-12B",
+  "sha": "b6ac22b0d51b69b18200acacb3fbdd98073fffe8",
+  "gated": false,
+  "lastModified": "2026-09-21T16:54:18.000Z",
+  "files": [
+    {
+      "rfilename": "LICENSE",
+      "blobId": "d645695673349e3947e8e5ae42332d0ac3164cd7",
+      "size": 11358
+    },
+    {
+      "rfilename": "NOTICE",
+      "blobId": "548b33fe1e0c3f8f41ce9f2495974c32ad94f340",
+      "size": 1198
+    },
+    {
+      "rfilename": "README.md",
+      "blobId": "93746c9f7c703374b6b504ff0ea700d963489148",
+      "size": 8905
+    },
+    {
+      "rfilename": "SHA256SUMS",
+      "blobId": "0c305923bc4d69225925422a26225ac3555460d4",
+      "size": 788
+    },
+    {
+      "rfilename": "gguf/Winnow-12B-Q8_0.gguf",
+      "blobId": "6bfd51460b58ae51f6c9acfa850089412420f6b5",
+      "size": 12669646592,
+      "lfs": {
+        "sha256": "b710efc4c0d048ee61eed92c5fef5ce323a4d17e7c51f9f0533cc72ae50818ea",
+        "size": 12669646592,
+        "pointerSize": 136
+      }
+    }
+  ]
+}

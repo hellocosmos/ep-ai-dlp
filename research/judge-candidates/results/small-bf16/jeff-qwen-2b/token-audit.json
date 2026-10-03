@@ -1,0 +1,22 @@
+{
+  "train": {
+    "n": 2874,
+    "max_tokens": 368,
+    "min_tokens": 190
+  },
+  "dev": {
+    "n": 356,
+    "max_tokens": 264,
+    "min_tokens": 193
+  },
+  "calibration": {
+    "n": 428,
+    "max_tokens": 257,
+    "min_tokens": 188
+  },
+  "test": {
+    "n": 736,
+    "max_tokens": 372,
+    "min_tokens": 193
+  }
+}

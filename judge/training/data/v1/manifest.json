@@ -1,0 +1,127 @@
+{
+  "version": "v1",
+  "seed": 20261003,
+  "scope": "synthetic_bilingual_ai_dlp",
+  "independent_human_review": false,
+  "split_unit": "authored_source_family_including_translations_and_policy_counterfactuals",
+  "legacy_corpus_used_for_training": false,
+  "limitations": [
+    "Synthetic examples are not representative real enterprise documents.",
+    "Several variations per family are correlated; report family counts alongside row counts.",
+    "No external teacher or human labeling is claimed."
+  ],
+  "splits": {
+    "train": {
+      "rows": 2874,
+      "exact_duplicates_removed": 102,
+      "source_families": 108,
+      "unique_documents": 2222,
+      "labels": {
+        "insufficient": 523,
+        "match": 1144,
+        "no_match": 1207
+      },
+      "languages": {
+        "en": 1429,
+        "ko": 1445
+      },
+      "policy_languages": {
+        "en": 1424,
+        "ko": 1450
+      },
+      "policies": {
+        "proprietary_technical": 466,
+        "customer_records": 551,
+        "commercial_terms": 550,
+        "hr_records": 475,
+        "personal_sensitive": 417,
+        "strategic_finance": 415
+      },
+      "sha256": "862c0b98ae1d1eff713a83e86516a3f13707d2fc3d878e25547d562858dcb08c"
+    },
+    "dev": {
+      "rows": 356,
+      "exact_duplicates_removed": 4,
+      "source_families": 36,
+      "unique_documents": 269,
+      "labels": {
+        "no_match": 165,
+        "insufficient": 47,
+        "match": 144
+      },
+      "languages": {
+        "en": 178,
+        "ko": 178
+      },
+      "policy_languages": {
+        "en": 178,
+        "ko": 178
+      },
+      "policies": {
+        "commercial_terms": 71,
+        "personal_sensitive": 48,
+        "hr_records": 60,
+        "strategic_finance": 47,
+        "customer_records": 72,
+        "proprietary_technical": 58
+      },
+      "sha256": "c0adc2ebc8e4b3a5bd0b26b07bebef75dfb453f2be856c42aae49147c8037a2d"
+    },
+    "calibration": {
+      "rows": 428,
+      "exact_duplicates_removed": 4,
+      "source_families": 36,
+      "unique_documents": 335,
+      "labels": {
+        "match": 180,
+        "no_match": 190,
+        "insufficient": 58
+      },
+      "languages": {
+        "ko": 215,
+        "en": 213
+      },
+      "policy_languages": {
+        "ko": 215,
+        "en": 213
+      },
+      "policies": {
+        "customer_records": 83,
+        "personal_sensitive": 59,
+        "commercial_terms": 84,
+        "proprietary_technical": 71,
+        "hr_records": 72,
+        "strategic_finance": 59
+      },
+      "sha256": "c9bea5286f4de129111a992efdff426b4030c436894abcffdbd8f2910a06ec38"
+    },
+    "test": {
+      "rows": 736,
+      "exact_duplicates_removed": 8,
+      "source_families": 54,
+      "unique_documents": 601,
+      "labels": {
+        "no_match": 310,
+        "match": 288,
+        "insufficient": 138
+      },
+      "languages": {
+        "ko": 370,
+        "en": 366
+      },
+      "policy_languages": {
+        "en": 366,
+        "ko": 370
+      },
+      "policies": {
+        "commercial_terms": 139,
+        "customer_records": 138,
+        "hr_records": 124,
+        "strategic_finance": 106,
+        "personal_sensitive": 106,
+        "proprietary_technical": 123
+      },
+      "sha256": "957e765625c4c643115f397f8e9b17d1a82b09d4c53d732ac9ddd2055d0456f5"
+    }
+  }
+}

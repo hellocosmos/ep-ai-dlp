@@ -1,0 +1,118 @@
+{
+  "id": "Mapika/decider-2b",
+  "sha": "533964dae8be954c5b5e19fa4948e48408094c1e",
+  "files": [
+    {
+      "name": ".gitattributes",
+      "size": 1570
+    },
+    {
+      "name": "README.md",
+      "size": 42868
+    },
+    {
+      "name": "chat_template.jinja",
+      "size": 7755
+    },
+    {
+      "name": "config.json",
+      "size": 1790
+    },
+    {
+      "name": "decider/__init__.py",
+      "size": 0
+    },
+    {
+      "name": "decider/batching.py",
+      "size": 5052
+    },
+    {
+      "name": "decider/calibrate.py",
+      "size": 11959
+    },
+    {
+      "name": "decider/engine.py",
+      "size": 12154
+    },
+    {
+      "name": "decider/engine_v2.py",
+      "size": 12035
+    },
+    {
+      "name": "decider/fp8.py",
+      "size": 2593
+    },
+    {
+      "name": "decider/infer.py",
+      "size": 22407
+    },
+    {
+      "name": "decider/metrics.py",
+      "size": 1643
+    },
+    {
+      "name": "decider/model.py",
+      "size": 2868
+    },
+    {
+      "name": "decider/mps_moe.py",
+      "size": 5231
+    },
+    {
+      "name": "decider/mps_ops.py",
+      "size": 11600
+    },
+    {
+      "name": "decider/prompt.py",
+      "size": 15228
+    },
+    {
+      "name": "decider/prompt_fast.py",
+      "size": 4579
+    },
+    {
+      "name": "decider/schema_engine.py",
+      "size": 10542
+    },
+    {
+      "name": "decider/serve.py",
+      "size": 32206
+    },
+    {
+      "name": "decider/shared_prefix.py",
+      "size": 9827
+    },
+    {
+      "name": "decider/systemone.py",
+      "size": 10376
+    },
+    {
+      "name": "decider/temperature.py",
+      "size": 7294
+    },
+    {
+      "name": "decider_config.json",
+      "size": 1240
+    },
+    {
+      "name": "eval_results.json",
+      "size": 24953
+    },
+    {
+      "name": "generation_config.json",
+      "size": 116
+    },
+    {
+      "name": "model.safetensors",
+      "size": 3763692048
+    },
+    {
+      "name": "tokenizer.json",
+      "size": 19989325
+    },
+    {
+      "name": "tokenizer_config.json",
+      "size": 1127
+    }
+  ]
+}

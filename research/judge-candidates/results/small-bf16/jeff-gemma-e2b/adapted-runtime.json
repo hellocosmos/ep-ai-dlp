@@ -1,0 +1,12 @@
+{
+  "command": [
+    "${REPO_ROOT}/judge/.train-venv/bin/python",
+    "${REPO_ROOT}/judge/training/serve_small.py",
+    "jeff-gemma-e2b",
+    "--adapted"
+  ],
+  "load_seconds": 3.0335996249923483,
+  "authentication_check": 401,
+  "completed": true,
+  "elapsed_seconds": 179.87132279202342
+}

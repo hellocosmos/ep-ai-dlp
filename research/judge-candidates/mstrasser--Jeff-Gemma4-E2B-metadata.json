@@ -1,0 +1,58 @@
+{
+  "id": "mstrasser/Jeff-Gemma4-E2B",
+  "sha": "e3de3e99a979f92afd995d4e526c7e3170ae49cf",
+  "files": [
+    {
+      "name": ".gitattributes",
+      "size": 1570
+    },
+    {
+      "name": "LICENSE",
+      "size": 11358
+    },
+    {
+      "name": "NOTICE",
+      "size": 351
+    },
+    {
+      "name": "README.md",
+      "size": 16549
+    },
+    {
+      "name": "chat_template.jinja",
+      "size": 18569
+    },
+    {
+      "name": "config.json",
+      "size": 2397
+    },
+    {
+      "name": "decision_config.json",
+      "size": 6788
+    },
+    {
+      "name": "model-00001-of-00002.safetensors",
+      "size": 4532051774
+    },
+    {
+      "name": "model-00002-of-00002.safetensors",
+      "size": 4725146472
+    },
+    {
+      "name": "model.safetensors.index.json",
+      "size": 42215
+    },
+    {
+      "name": "readout.safetensors",
+      "size": 783440
+    },
+    {
+      "name": "tokenizer.json",
+      "size": 32169780
+    },
+    {
+      "name": "tokenizer_config.json",
+      "size": 3729
+    }
+  ]
+}

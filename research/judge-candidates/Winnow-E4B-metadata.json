@@ -1,0 +1,48 @@
+{
+  "id": "EldanRing/Winnow-E4B",
+  "sha": "1b257e8fa80b270a62338362a8b35e37f7890273",
+  "gated": false,
+  "lastModified": "2026-09-30T20:27:29.000Z",
+  "files": [
+    {
+      "rfilename": "LICENSE",
+      "blobId": "d645695673349e3947e8e5ae42332d0ac3164cd7",
+      "size": 11358
+    },
+    {
+      "rfilename": "NOTICE",
+      "blobId": "7e6f0245d3c6826d3c226d8f9f103add5d85874d",
+      "size": 883
+    },
+    {
+      "rfilename": "README.md",
+      "blobId": "b8c81207fed002644b91ed1aec3315f5c89aa5cc",
+      "size": 9966
+    },
+    {
+      "rfilename": "SHA256SUMS",
+      "blobId": "7e1488518dea0d3c6a9d84de3d4666e158e7164a",
+      "size": 278
+    },
+    {
+      "rfilename": "gguf/Winnow-E4B-Q8_0.gguf",
+      "blobId": "2e03a26510924b736fe35ab19c7f5db0671877a0",
+      "size": 8005437472,
+      "lfs": {
+        "sha256": "840e3f50e5a9c218727f44e121d1b37cc9e2c3b318c8eb422ba6ef2e27b618a2",
+        "size": 8005437472,
+        "pointerSize": 135
+      }
+    },
+    {
+      "rfilename": "gguf/Winnow-E4B-BF16.gguf",
+      "blobId": "d08a0206f4f85d09bd45f16a6d866f0c4bfd1ead",
+      "size": 15053096992,
+      "lfs": {
+        "sha256": "53c3e504c061f6a7ce84cb6240d427ac6c630850a2cf93f3c2ee980c8136e7e7",
+        "size": 15053096992,
+        "pointerSize": 136
+      }
+    }
+  ]
+}

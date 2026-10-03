@@ -1,0 +1,11 @@
+{
+  "command": [
+    "${REPO_ROOT}/judge/.train-venv/bin/python",
+    "${REPO_ROOT}/judge/training/serve_small.py",
+    "decider-2b"
+  ],
+  "load_seconds": 2.027319625020027,
+  "authentication_check": 401,
+  "completed": true,
+  "elapsed_seconds": 98.88196641701506
+}

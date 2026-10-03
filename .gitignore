@@ -24,3 +24,9 @@ research/hudsucker-spike/harness/bin/
 acceptance-runs/
 evidence/
 artifacts/
+
+# Local model training and downloaded weights
+.train-venv/
+*.gguf
+*.safetensors
+*.npz

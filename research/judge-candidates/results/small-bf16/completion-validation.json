@@ -1,0 +1,13 @@
+{
+  "completed": true,
+  "conditions": 6,
+  "calibration_decisions": 2568,
+  "test_decisions": 4416,
+  "inference_requests": 7830,
+  "observed_inference_failures": 0,
+  "unauthenticated_401_checks": 6,
+  "temporary_port_closed": true,
+  "selected_adapter_hashes_verified": true,
+  "comparison_sha256": "4df178906906f6328118a994bc99a97582b1f3ea5627e8f3af2f8459504f8f29",
+  "report_sha256": "c69ca942dfe822bd132c0f8ca1dec3726b046cb65946928b962e5d555bee1da1"
+}

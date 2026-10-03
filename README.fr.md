@@ -14,6 +14,17 @@ Console réelle avec des données synthétiques. Les noms, compteurs et états i
 
 ![Inspection events](docs/assets/console-events-dark.png)
 
+## Un modèle de décision local inspiré de Jev
+
+Jev m’a inspiré l’ajout de petits modèles de décision à AI DLP pour compléter les expressions régulières face aux conditions commerciales, au contexte métier et au sens des politiques. Envoyer des données sensibles à une API commerciale d’IA pour les inspecter crée une autre préoccupation d’exposition. J’ai donc implémenté une inférence locale et un ajustement spécialisé DLP. Après l’avoir construit et essayé, mon constat est simple : c’est utile et cela mérite d’être développé. Il ne s’agit pas d’une intégration officielle ni d’une affiliation à Jev.
+
+Les règles déterministes continuent de détecter les identifiants et secrets connus. Le modèle renvoie des scores ; un moteur distinct contrôle les autorisations, les approbations, le blocage et la revue humaine. Un serveur d’inférence distant explicitement configuré reçoit le texte et doit rester dans le périmètre de confiance de l’organisation.
+
+Sur le même M4 Max, en BF16, avec 736 décisions synthétiques réutilisées, la précision initiale→ajustée est de **66.6→81.8%** pour Decider 2B, **82.7→89.9%** pour Jeff Qwen 2B et **83.8→91.2%** pour Jeff Gemma4 E2B. Médiane API après ajustement : 68/87/121ms. Ces 54 familles synthétiques ne garantissent pas la précision en production. Les nouveaux petits modèles n’ont pas été intégrés à la protection Windows ni sélectionnés comme modèle actif par défaut.
+
+[Guide](docs/local-judge.md) · [API](docs/jev-api.md) · [Entraînement](judge/training/README.md) · [Résultats](research/judge-candidates/SMALL_MODEL_FINETUNING.md)
+
+
 ## Fonctions implémentées
 
 - Moteur Rust : capture TCP sélective, inspection TLS, analyse bornée des requêtes et détection déterministe.

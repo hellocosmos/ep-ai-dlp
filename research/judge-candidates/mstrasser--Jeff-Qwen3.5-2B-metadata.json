@@ -1,0 +1,54 @@
+{
+  "id": "mstrasser/Jeff-Qwen3.5-2B",
+  "sha": "00448e884cce9e34396d8c72e9a692b41383b1ee",
+  "files": [
+    {
+      "name": ".gitattributes",
+      "size": 1570
+    },
+    {
+      "name": "LICENSE",
+      "size": 11358
+    },
+    {
+      "name": "NOTICE",
+      "size": 321
+    },
+    {
+      "name": "README.md",
+      "size": 19043
+    },
+    {
+      "name": "chat_template.jinja",
+      "size": 7755
+    },
+    {
+      "name": "config.json",
+      "size": 2693
+    },
+    {
+      "name": "decision_config.json",
+      "size": 6631
+    },
+    {
+      "name": "model.safetensors",
+      "size": 4426555160
+    },
+    {
+      "name": "processor_config.json",
+      "size": 1218
+    },
+    {
+      "name": "readout.safetensors",
+      "size": 1044568
+    },
+    {
+      "name": "tokenizer.json",
+      "size": 19989492
+    },
+    {
+      "name": "tokenizer_config.json",
+      "size": 1166
+    }
+  ]
+}

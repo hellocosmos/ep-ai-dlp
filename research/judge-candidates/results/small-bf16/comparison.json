@@ -1,0 +1,1400 @@
+{
+  "scope": "Three publicly trained decision checkpoints, before/after local DLP LoRA. Six paired MLX BF16 conditions; same loopback queue/HTTP harness. Synthetic reused test, not new independent production acceptance.",
+  "models": {
+    "decider-2b": {
+      "original": {
+        "n": 736,
+        "correct": 490,
+        "accuracy": 0.6657608695652174,
+        "sensitive_predicted_safe": 106,
+        "ambiguous_predicted_safe": 44,
+        "language": {
+          "ko": {
+            "n": 370,
+            "correct": 232,
+            "accuracy": 0.6270270270270271,
+            "sensitive_predicted_safe": 51,
+            "ambiguous_predicted_safe": 24
+          },
+          "en": {
+            "n": 366,
+            "correct": 258,
+            "accuracy": 0.7049180327868853,
+            "sensitive_predicted_safe": 55,
+            "ambiguous_predicted_safe": 20
+          }
+        },
+        "policy": {
+          "commercial_terms": {
+            "n": 139,
+            "correct": 103,
+            "accuracy": 0.7410071942446043,
+            "sensitive_predicted_safe": 19,
+            "ambiguous_predicted_safe": 12
+          },
+          "customer_records": {
+            "n": 138,
+            "correct": 72,
+            "accuracy": 0.5217391304347826,
+            "sensitive_predicted_safe": 25,
+            "ambiguous_predicted_safe": 15
+          },
+          "hr_records": {
+            "n": 124,
+            "correct": 81,
+            "accuracy": 0.6532258064516129,
+            "sensitive_predicted_safe": 10,
+            "ambiguous_predicted_safe": 4
+          },
+          "personal_sensitive": {
+            "n": 106,
+            "correct": 54,
+            "accuracy": 0.5094339622641509,
+            "sensitive_predicted_safe": 24,
+            "ambiguous_predicted_safe": 7
+          },
+          "proprietary_technical": {
+            "n": 123,
+            "correct": 86,
+            "accuracy": 0.6991869918699187,
+            "sensitive_predicted_safe": 26,
+            "ambiguous_predicted_safe": 6
+          },
+          "strategic_finance": {
+            "n": 106,
+            "correct": 94,
+            "accuracy": 0.8867924528301887,
+            "sensitive_predicted_safe": 2,
+            "ambiguous_predicted_safe": 0
+          }
+        },
+        "thresholds": {
+          "allow": 0.9535,
+          "block": 0.9758
+        },
+        "calibration_actions": {
+          "rows": 428,
+          "block": 26,
+          "allow": 80,
+          "review": 322,
+          "sensitive_allowed": 0,
+          "ambiguous_allowed": 0,
+          "safe_blocked": 0,
+          "ambiguous_blocked": 0,
+          "safe_allowed": 80,
+          "sensitive_blocked": 26
+        },
+        "actions": {
+          "rows": 736,
+          "block": 16,
+          "allow": 134,
+          "review": 586,
+          "sensitive_allowed": 7,
+          "ambiguous_allowed": 2,
+          "safe_blocked": 0,
+          "ambiguous_blocked": 0,
+          "safe_allowed": 125,
+          "sensitive_blocked": 16
+        },
+        "latency_ms": {
+          "p50": 66.26472901552916,
+          "p95": 99.83379096956924
+        },
+        "input_tokens": [
+          132,
+          311
+        ],
+        "gpu_active_bytes": 3795195834,
+        "load_probe": {
+          "short": {
+            "n": 20,
+            "success": 20,
+            "p50_ms": 63.27268749009818,
+            "p95_ms": 67.23979202797636,
+            "successful_p95_ms": 67.23979202797636,
+            "errors": []
+          },
+          "medium": {
+            "n": 20,
+            "success": 20,
+            "p50_ms": 122.86116651375778,
+            "p95_ms": 127.2337079863064,
+            "successful_p95_ms": 127.2337079863064,
+            "errors": []
+          },
+          "long": {
+            "n": 20,
+            "success": 20,
+            "p50_ms": 277.19772901036777,
+            "p95_ms": 284.82512501068413,
+            "successful_p95_ms": 284.82512501068413,
+            "errors": []
+          },
+          "concurrent4": {
+            "n": 20,
+            "success": 20,
+            "p50_ms": 159.4638750248123,
+            "p95_ms": 252.88779201218858,
+            "successful_p95_ms": 252.88779201218858,
+            "errors": []
+          },
+          "six_sequential": {
+            "n": 10,
+            "success": 10,
+            "p50_ms": 712.898874480743
+          }
+        },
+        "runtime": {
+          "command": [
+            "${REPO_ROOT}/judge/.train-venv/bin/python",
+            "${REPO_ROOT}/judge/training/serve_small.py",
+            "decider-2b"
+          ],
+          "load_seconds": 2.027319625020027,
+          "authentication_check": 401,
+          "completed": true,
+          "elapsed_seconds": 98.88196641701506
+        },
+        "tags": {
+          "counterfactual_policy": {
+            "n": 96,
+            "correct": 85,
+            "accuracy": 0.8854166666666666,
+            "sensitive_predicted_safe": 0,
+            "ambiguous_predicted_safe": 0
+          },
+          "distractor_prefix": {
+            "n": 108,
+            "correct": 56,
+            "accuracy": 0.5185185185185185,
+            "sensitive_predicted_safe": 30,
+            "ambiguous_predicted_safe": 12
+          },
+          "embedded_instruction": {
+            "n": 216,
+            "correct": 114,
+            "accuracy": 0.5277777777777778,
+            "sensitive_predicted_safe": 61,
+            "ambiguous_predicted_safe": 25
+          }
+        }
+      },
+      "adapted": {
+        "n": 736,
+        "correct": 602,
+        "accuracy": 0.8179347826086957,
+        "sensitive_predicted_safe": 52,
+        "ambiguous_predicted_safe": 24,
+        "language": {
+          "ko": {
+            "n": 370,
+            "correct": 297,
+            "accuracy": 0.8027027027027027,
+            "sensitive_predicted_safe": 28,
+            "ambiguous_predicted_safe": 12
+          },
+          "en": {
+            "n": 366,
+            "correct": 305,
+            "accuracy": 0.8333333333333334,
+            "sensitive_predicted_safe": 24,
+            "ambiguous_predicted_safe": 12
+          }
+        },
+        "policy": {
+          "commercial_terms": {
+            "n": 139,
+            "correct": 103,
+            "accuracy": 0.7410071942446043,
+            "sensitive_predicted_safe": 17,
+            "ambiguous_predicted_safe": 6
+          },
+          "customer_records": {
+            "n": 138,
+            "correct": 103,
+            "accuracy": 0.7463768115942029,
+            "sensitive_predicted_safe": 12,
+            "ambiguous_predicted_safe": 11
+          },
+          "hr_records": {
+            "n": 124,
+            "correct": 106,
+            "accuracy": 0.8548387096774194,
+            "sensitive_predicted_safe": 6,
+            "ambiguous_predicted_safe": 3
+          },
+          "personal_sensitive": {
+            "n": 106,
+            "correct": 94,
+            "accuracy": 0.8867924528301887,
+            "sensitive_predicted_safe": 5,
+            "ambiguous_predicted_safe": 4
+          },
+          "proprietary_technical": {
+            "n": 123,
+            "correct": 105,
+            "accuracy": 0.8536585365853658,
+            "sensitive_predicted_safe": 11,
+            "ambiguous_predicted_safe": 0
+          },
+          "strategic_finance": {
+            "n": 106,
+            "correct": 91,
+            "accuracy": 0.8584905660377359,
+            "sensitive_predicted_safe": 1,
+            "ambiguous_predicted_safe": 0
+          }
+        },
+        "thresholds": {
+          "allow": 0.9363,
+          "block": 0.9669
+        },
+        "calibration_actions": {
+          "rows": 428,
+          "block": 91,
+          "allow": 113,
+          "review": 224,
+          "sensitive_allowed": 0,
+          "ambiguous_allowed": 0,
+          "safe_blocked": 0,
+          "ambiguous_blocked": 0,
+          "safe_allowed": 113,
+          "sensitive_blocked": 91
+        },
+        "actions": {
+          "rows": 736,
+          "block": 107,
+          "allow": 189,
+          "review": 440,
+          "sensitive_allowed": 5,
+          "ambiguous_allowed": 3,
+          "safe_blocked": 0,
+          "ambiguous_blocked": 3,
+          "safe_allowed": 181,
+          "sensitive_blocked": 104
+        },
+        "latency_ms": {
+          "p50": 68.28595799743198,
+          "p95": 102.33108297688887
+        },
+        "input_tokens": [
+          132,
+          311
+        ],
+        "gpu_active_bytes": 3811670410,
+        "load_probe": {
+          "short": {
+            "n": 20,
+            "success": 20,
+            "p50_ms": 64.53095850883983,
+            "p95_ms": 66.20670796837658,
+            "successful_p95_ms": 66.20670796837658,
+            "errors": []
+          },
+          "medium": {
+            "n": 20,
+            "success": 20,
+            "p50_ms": 126.64393751765601,
+            "p95_ms": 130.4428749717772,
+            "successful_p95_ms": 130.4428749717772,
+            "errors": []
+          },
+          "long": {
+            "n": 20,
+            "success": 20,
+            "p50_ms": 279.90862500155345,
+            "p95_ms": 295.5046250135638,
+            "successful_p95_ms": 295.5046250135638,
+            "errors": []
+          },
+          "concurrent4": {
+            "n": 20,
+            "success": 20,
+            "p50_ms": 155.7396870048251,
+            "p95_ms": 247.9059590259567,
+            "successful_p95_ms": 247.9059590259567,
+            "errors": []
+          },
+          "six_sequential": {
+            "n": 10,
+            "success": 10,
+            "p50_ms": 725.7291255227756
+          }
+        },
+        "runtime": {
+          "command": [
+            "${REPO_ROOT}/judge/.train-venv/bin/python",
+            "${REPO_ROOT}/judge/training/serve_small.py",
+            "decider-2b",
+            "--adapted"
+          ],
+          "load_seconds": 2.028874916024506,
+          "authentication_check": 401,
+          "completed": true,
+          "elapsed_seconds": 101.88324166601524
+        },
+        "tags": {
+          "counterfactual_policy": {
+            "n": 96,
+            "correct": 85,
+            "accuracy": 0.8854166666666666,
+            "sensitive_predicted_safe": 0,
+            "ambiguous_predicted_safe": 0
+          },
+          "distractor_prefix": {
+            "n": 108,
+            "correct": 71,
+            "accuracy": 0.6574074074074074,
+            "sensitive_predicted_safe": 23,
+            "ambiguous_predicted_safe": 10
+          },
+          "embedded_instruction": {
+            "n": 216,
+            "correct": 152,
+            "accuracy": 0.7037037037037037,
+            "sensitive_predicted_safe": 41,
+            "ambiguous_predicted_safe": 16
+          }
+        }
+      },
+      "paired_change": {
+        "accuracy_delta_pp": 15.217391304347828,
+        "rescued": 131,
+        "regressed": 19
+      },
+      "training": {
+        "completed": true,
+        "steps": 1438,
+        "best_dev_accuracy": 0.8735955056179775,
+        "elapsed_seconds": 472.95463491702685,
+        "peak_memory_gb": 4.713838472
+      },
+      "selection": {
+        "event": "development",
+        "step": 719,
+        "n": 356,
+        "accuracy": 0.8735955056179775,
+        "sensitive_predicted_safe": 22,
+        "ambiguous_predicted_safe": 5
+      },
+      "development": {
+        "original": {
+          "n": 356,
+          "correct": 265,
+          "accuracy": 0.7443820224719101,
+          "sensitive_predicted_safe": 39,
+          "ambiguous_predicted_safe": 15
+        },
+        "adapted": {
+          "n": 356,
+          "correct": 311,
+          "accuracy": 0.8735955056179775,
+          "sensitive_predicted_safe": 22,
+          "ambiguous_predicted_safe": 5
+        }
+      },
+      "source": {
+        "id": "Mapika/decider-2b",
+        "revision": "533964dae8be954c5b5e19fa4948e48408094c1e",
+        "files": [
+          {
+            "name": "generation_config.json",
+            "size": 116,
+            "sha256": null,
+            "git_blob": "31ec2a53cc9cde720b0a8fbc68b9c4e73ac5a18f"
+          },
+          {
+            "name": "tokenizer_config.json",
+            "size": 1127,
+            "sha256": null,
+            "git_blob": "8a675cf6071546d7c13fea4c9d1acf1d1958569c"
+          },
+          {
+            "name": "decider_config.json",
+            "size": 1240,
+            "sha256": null,
+            "git_blob": "589d43974801443adbc41a27a713d133e8687ca8"
+          },
+          {
+            "name": "config.json",
+            "size": 1790,
+            "sha256": null,
+            "git_blob": "27e38437e7c493534cab7a41521acba190da65ed"
+          },
+          {
+            "name": "chat_template.jinja",
+            "size": 7755,
+            "sha256": null,
+            "git_blob": "0ef09f214eaa6d9bca297988afc1454b5827b2c7"
+          },
+          {
+            "name": "decider/prompt.py",
+            "size": 15228,
+            "sha256": null,
+            "git_blob": "6df731b07d84b3af81d749fd524f2933476ee4e4"
+          },
+          {
+            "name": "eval_results.json",
+            "size": 24953,
+            "sha256": null,
+            "git_blob": "d77290e3611568978b6991eaaeef0da9c9c2a478"
+          },
+          {
+            "name": "README.md",
+            "size": 42868,
+            "sha256": null,
+            "git_blob": "881af6d4c1f77bf4158f9e04c14047ab84269341"
+          },
+          {
+            "name": "tokenizer.json",
+            "size": 19989325,
+            "sha256": "06b9509352d2af50381ab2247e083b80d32d5c0aba91c272ca9ff729b6a0e523",
+            "git_blob": "5520bfd2dd834ce386c1312c410fa71af56db5ad"
+          },
+          {
+            "name": "model.safetensors",
+            "size": 3763692048,
+            "sha256": "acaef2228b134dcdc20cad4ee79219482c927ec819aa3687b9b8a575c338817f",
+            "git_blob": "e1b09c1ee73bb37201f998c1ee3f46ea5f456f12"
+          }
+        ]
+      }
+    },
+    "jeff-qwen-2b": {
+      "original": {
+        "n": 736,
+        "correct": 609,
+        "accuracy": 0.8274456521739131,
+        "sensitive_predicted_safe": 52,
+        "ambiguous_predicted_safe": 21,
+        "language": {
+          "ko": {
+            "n": 370,
+            "correct": 292,
+            "accuracy": 0.7891891891891892,
+            "sensitive_predicted_safe": 34,
+            "ambiguous_predicted_safe": 11
+          },
+          "en": {
+            "n": 366,
+            "correct": 317,
+            "accuracy": 0.8661202185792349,
+            "sensitive_predicted_safe": 18,
+            "ambiguous_predicted_safe": 10
+          }
+        },
+        "policy": {
+          "commercial_terms": {
+            "n": 139,
+            "correct": 124,
+            "accuracy": 0.8920863309352518,
+            "sensitive_predicted_safe": 0,
+            "ambiguous_predicted_safe": 3
+          },
+          "customer_records": {
+            "n": 138,
+            "correct": 82,
+            "accuracy": 0.5942028985507246,
+            "sensitive_predicted_safe": 25,
+            "ambiguous_predicted_safe": 18
+          },
+          "hr_records": {
+            "n": 124,
+            "correct": 95,
+            "accuracy": 0.7661290322580645,
+            "sensitive_predicted_safe": 4,
+            "ambiguous_predicted_safe": 0
+          },
+          "personal_sensitive": {
+            "n": 106,
+            "correct": 96,
+            "accuracy": 0.9056603773584906,
+            "sensitive_predicted_safe": 10,
+            "ambiguous_predicted_safe": 0
+          },
+          "proprietary_technical": {
+            "n": 123,
+            "correct": 113,
+            "accuracy": 0.9186991869918699,
+            "sensitive_predicted_safe": 10,
+            "ambiguous_predicted_safe": 0
+          },
+          "strategic_finance": {
+            "n": 106,
+            "correct": 99,
+            "accuracy": 0.9339622641509434,
+            "sensitive_predicted_safe": 3,
+            "ambiguous_predicted_safe": 0
+          }
+        },
+        "thresholds": {
+          "allow": 0.9027,
+          "block": 0.7023
+        },
+        "calibration_actions": {
+          "rows": 428,
+          "block": 106,
+          "allow": 71,
+          "review": 251,
+          "sensitive_allowed": 0,
+          "ambiguous_allowed": 0,
+          "safe_blocked": 0,
+          "ambiguous_blocked": 0,
+          "safe_allowed": 71,
+          "sensitive_blocked": 106
+        },
+        "actions": {
+          "rows": 736,
+          "block": 127,
+          "allow": 76,
+          "review": 533,
+          "sensitive_allowed": 0,
+          "ambiguous_allowed": 0,
+          "safe_blocked": 1,
+          "ambiguous_blocked": 0,
+          "safe_allowed": 76,
+          "sensitive_blocked": 126
+        },
+        "latency_ms": {
+          "p50": 86.96545849670656,
+          "p95": 118.96045797038823
+        },
+        "input_tokens": [
+          193,
+          372
+        ],
+        "gpu_active_bytes": 3793544698,
+        "load_probe": {
+          "short": {
+            "n": 20,
+            "success": 20,
+            "p50_ms": 84.77752099861391,
+            "p95_ms": 87.45483297389,
+            "successful_p95_ms": 87.45483297389,
+            "errors": []
+          },
+          "medium": {
+            "n": 20,
+            "success": 20,
+            "p50_ms": 144.81022898689844,
+            "p95_ms": 148.17716705147177,
+            "successful_p95_ms": 148.17716705147177,
+            "errors": []
+          },
+          "long": {
+            "n": 20,
+            "success": 20,
+            "p50_ms": 297.4191039975267,
+            "p95_ms": 305.76087499503046,
+            "successful_p95_ms": 305.76087499503046,
+            "errors": []
+          },
+          "concurrent4": {
+            "n": 20,
+            "success": 20,
+            "p50_ms": 205.56929148733616,
+            "p95_ms": 342.8005839814432,
+            "successful_p95_ms": 342.8005839814432,
+            "errors": []
+          },
+          "six_sequential": {
+            "n": 10,
+            "success": 10,
+            "p50_ms": 830.9118130418938
+          }
+        },
+        "runtime": {
+          "command": [
+            "${REPO_ROOT}/judge/.train-venv/bin/python",
+            "${REPO_ROOT}/judge/training/serve_small.py",
+            "jeff-qwen-2b"
+          ],
+          "load_seconds": 2.0260346249560826,
+          "authentication_check": 401,
+          "completed": true,
+          "elapsed_seconds": 126.62752433295827
+        },
+        "tags": {
+          "counterfactual_policy": {
+            "n": 96,
+            "correct": 86,
+            "accuracy": 0.8958333333333334,
+            "sensitive_predicted_safe": 0,
+            "ambiguous_predicted_safe": 0
+          },
+          "distractor_prefix": {
+            "n": 108,
+            "correct": 89,
+            "accuracy": 0.8240740740740741,
+            "sensitive_predicted_safe": 9,
+            "ambiguous_predicted_safe": 4
+          },
+          "embedded_instruction": {
+            "n": 216,
+            "correct": 174,
+            "accuracy": 0.8055555555555556,
+            "sensitive_predicted_safe": 20,
+            "ambiguous_predicted_safe": 8
+          }
+        }
+      },
+      "adapted": {
+        "n": 736,
+        "correct": 662,
+        "accuracy": 0.8994565217391305,
+        "sensitive_predicted_safe": 24,
+        "ambiguous_predicted_safe": 21,
+        "language": {
+          "ko": {
+            "n": 370,
+            "correct": 322,
+            "accuracy": 0.8702702702702703,
+            "sensitive_predicted_safe": 19,
+            "ambiguous_predicted_safe": 11
+          },
+          "en": {
+            "n": 366,
+            "correct": 340,
+            "accuracy": 0.9289617486338798,
+            "sensitive_predicted_safe": 5,
+            "ambiguous_predicted_safe": 10
+          }
+        },
+        "policy": {
+          "commercial_terms": {
+            "n": 139,
+            "correct": 128,
+            "accuracy": 0.920863309352518,
+            "sensitive_predicted_safe": 0,
+            "ambiguous_predicted_safe": 4
+          },
+          "customer_records": {
+            "n": 138,
+            "correct": 102,
+            "accuracy": 0.7391304347826086,
+            "sensitive_predicted_safe": 5,
+            "ambiguous_predicted_safe": 17
+          },
+          "hr_records": {
+            "n": 124,
+            "correct": 116,
+            "accuracy": 0.9354838709677419,
+            "sensitive_predicted_safe": 4,
+            "ambiguous_predicted_safe": 0
+          },
+          "personal_sensitive": {
+            "n": 106,
+            "correct": 101,
+            "accuracy": 0.9528301886792453,
+            "sensitive_predicted_safe": 5,
+            "ambiguous_predicted_safe": 0
+          },
+          "proprietary_technical": {
+            "n": 123,
+            "correct": 115,
+            "accuracy": 0.9349593495934959,
+            "sensitive_predicted_safe": 7,
+            "ambiguous_predicted_safe": 0
+          },
+          "strategic_finance": {
+            "n": 106,
+            "correct": 100,
+            "accuracy": 0.9433962264150944,
+            "sensitive_predicted_safe": 3,
+            "ambiguous_predicted_safe": 0
+          }
+        },
+        "thresholds": {
+          "allow": 0.9662,
+          "block": 0.9716
+        },
+        "calibration_actions": {
+          "rows": 428,
+          "block": 102,
+          "allow": 96,
+          "review": 230,
+          "sensitive_allowed": 0,
+          "ambiguous_allowed": 0,
+          "safe_blocked": 0,
+          "ambiguous_blocked": 0,
+          "safe_allowed": 96,
+          "sensitive_blocked": 102
+        },
+        "actions": {
+          "rows": 736,
+          "block": 132,
+          "allow": 140,
+          "review": 464,
+          "sensitive_allowed": 0,
+          "ambiguous_allowed": 0,
+          "safe_blocked": 0,
+          "ambiguous_blocked": 0,
+          "safe_allowed": 140,
+          "sensitive_blocked": 132
+        },
+        "latency_ms": {
+          "p50": 86.9137704721652,
+          "p95": 120.22520799655467
+        },
+        "input_tokens": [
+          193,
+          372
+        ],
+        "gpu_active_bytes": 3833480142,
+        "load_probe": {
+          "short": {
+            "n": 20,
+            "success": 20,
+            "p50_ms": 83.60464600264095,
+            "p95_ms": 87.15683402260765,
+            "successful_p95_ms": 87.15683402260765,
+            "errors": []
+          },
+          "medium": {
+            "n": 20,
+            "success": 20,
+            "p50_ms": 134.27104149013758,
+            "p95_ms": 144.96945805149153,
+            "successful_p95_ms": 144.96945805149153,
+            "errors": []
+          },
+          "long": {
+            "n": 20,
+            "success": 20,
+            "p50_ms": 302.47843748657033,
+            "p95_ms": 324.2460420005955,
+            "successful_p95_ms": 324.2460420005955,
+            "errors": []
+          },
+          "concurrent4": {
+            "n": 20,
+            "success": 20,
+            "p50_ms": 203.48595798714086,
+            "p95_ms": 324.0618749987334,
+            "successful_p95_ms": 324.0618749987334,
+            "errors": []
+          },
+          "six_sequential": {
+            "n": 10,
+            "success": 10,
+            "p50_ms": 798.9065414876677
+          }
+        },
+        "runtime": {
+          "command": [
+            "${REPO_ROOT}/judge/.train-venv/bin/python",
+            "${REPO_ROOT}/judge/training/serve_small.py",
+            "jeff-qwen-2b",
+            "--adapted"
+          ],
+          "load_seconds": 2.0299527079914697,
+          "authentication_check": 401,
+          "completed": true,
+          "elapsed_seconds": 126.11072579200845
+        },
+        "tags": {
+          "counterfactual_policy": {
+            "n": 96,
+            "correct": 90,
+            "accuracy": 0.9375,
+            "sensitive_predicted_safe": 0,
+            "ambiguous_predicted_safe": 0
+          },
+          "distractor_prefix": {
+            "n": 108,
+            "correct": 96,
+            "accuracy": 0.8888888888888888,
+            "sensitive_predicted_safe": 5,
+            "ambiguous_predicted_safe": 4
+          },
+          "embedded_instruction": {
+            "n": 216,
+            "correct": 194,
+            "accuracy": 0.8981481481481481,
+            "sensitive_predicted_safe": 9,
+            "ambiguous_predicted_safe": 8
+          }
+        }
+      },
+      "paired_change": {
+        "accuracy_delta_pp": 7.20108695652174,
+        "rescued": 57,
+        "regressed": 4
+      },
+      "training": {
+        "completed": true,
+        "steps": 1438,
+        "best_dev_accuracy": 0.9129213483146067,
+        "elapsed_seconds": 608.5625065000495,
+        "peak_memory_gb": 4.776969328
+      },
+      "selection": {
+        "event": "development",
+        "step": 719,
+        "n": 356,
+        "accuracy": 0.9129213483146067,
+        "sensitive_predicted_safe": 14,
+        "ambiguous_predicted_safe": 3
+      },
+      "development": {
+        "original": {
+          "n": 356,
+          "correct": 311,
+          "accuracy": 0.8735955056179775,
+          "sensitive_predicted_safe": 27,
+          "ambiguous_predicted_safe": 0
+        },
+        "adapted": {
+          "n": 356,
+          "correct": 325,
+          "accuracy": 0.9129213483146067,
+          "sensitive_predicted_safe": 14,
+          "ambiguous_predicted_safe": 3
+        }
+      },
+      "source": {
+        "id": "mstrasser/Jeff-Qwen3.5-2B",
+        "revision": "00448e884cce9e34396d8c72e9a692b41383b1ee",
+        "files": [
+          {
+            "name": "NOTICE",
+            "size": 321,
+            "sha256": null,
+            "git_blob": "4578b7b026ddcff6bb76bf3b0b07ca9d4f22a912"
+          },
+          {
+            "name": "tokenizer_config.json",
+            "size": 1166,
+            "sha256": null,
+            "git_blob": "b4acebe045132228e18a4e2ca7f75ce137d1fbf7"
+          },
+          {
+            "name": "processor_config.json",
+            "size": 1218,
+            "sha256": null,
+            "git_blob": "b7df4377fc4140c120d853dce13694a25b31022e"
+          },
+          {
+            "name": "config.json",
+            "size": 2693,
+            "sha256": null,
+            "git_blob": "c40339757fac674c1af71c49a306f34c416e268f"
+          },
+          {
+            "name": "decision_config.json",
+            "size": 6631,
+            "sha256": null,
+            "git_blob": "2028e6a8b1132a9a7a1fcf415a3cd68503bbcf2e"
+          },
+          {
+            "name": "chat_template.jinja",
+            "size": 7755,
+            "sha256": null,
+            "git_blob": "0ef09f214eaa6d9bca297988afc1454b5827b2c7"
+          },
+          {
+            "name": "LICENSE",
+            "size": 11358,
+            "sha256": null,
+            "git_blob": "57bc88a15a0ee8266c259b2667e64608d3f7e292"
+          },
+          {
+            "name": "README.md",
+            "size": 19043,
+            "sha256": null,
+            "git_blob": "27f1f7e6db484e6e2e09987f3bd126af2c9aafe6"
+          },
+          {
+            "name": "readout.safetensors",
+            "size": 1044568,
+            "sha256": "4387eddad3d463c808ff89a44908255fab1134f818d86ec82eaf85f90762f939",
+            "git_blob": "471345f5e970c1865ff198b946c6dfdcd23c51c0"
+          },
+          {
+            "name": "tokenizer.json",
+            "size": 19989492,
+            "sha256": "6f32ce20dc35f57a7f9ad1eac03525bd7d30f9df8cea6507e958279cc3657706",
+            "git_blob": "9a481bbb155a395e3cd6c823c5a6902178bacedb"
+          },
+          {
+            "name": "model.safetensors",
+            "size": 4426555160,
+            "sha256": "ccb083d62bfd84e32b9013d40f206200df509d55727c8e1e33144b01c3759b2c",
+            "git_blob": "e403a87df7e255687d11675cab3598612a8096ee"
+          }
+        ]
+      }
+    },
+    "jeff-gemma-e2b": {
+      "original": {
+        "n": 736,
+        "correct": 617,
+        "accuracy": 0.8383152173913043,
+        "sensitive_predicted_safe": 5,
+        "ambiguous_predicted_safe": 19,
+        "language": {
+          "ko": {
+            "n": 370,
+            "correct": 299,
+            "accuracy": 0.8081081081081081,
+            "sensitive_predicted_safe": 5,
+            "ambiguous_predicted_safe": 6
+          },
+          "en": {
+            "n": 366,
+            "correct": 318,
+            "accuracy": 0.8688524590163934,
+            "sensitive_predicted_safe": 0,
+            "ambiguous_predicted_safe": 13
+          }
+        },
+        "policy": {
+          "commercial_terms": {
+            "n": 139,
+            "correct": 116,
+            "accuracy": 0.8345323741007195,
+            "sensitive_predicted_safe": 2,
+            "ambiguous_predicted_safe": 5
+          },
+          "customer_records": {
+            "n": 138,
+            "correct": 114,
+            "accuracy": 0.8260869565217391,
+            "sensitive_predicted_safe": 3,
+            "ambiguous_predicted_safe": 14
+          },
+          "hr_records": {
+            "n": 124,
+            "correct": 90,
+            "accuracy": 0.7258064516129032,
+            "sensitive_predicted_safe": 0,
+            "ambiguous_predicted_safe": 0
+          },
+          "personal_sensitive": {
+            "n": 106,
+            "correct": 104,
+            "accuracy": 0.9811320754716981,
+            "sensitive_predicted_safe": 0,
+            "ambiguous_predicted_safe": 0
+          },
+          "proprietary_technical": {
+            "n": 123,
+            "correct": 99,
+            "accuracy": 0.8048780487804879,
+            "sensitive_predicted_safe": 0,
+            "ambiguous_predicted_safe": 0
+          },
+          "strategic_finance": {
+            "n": 106,
+            "correct": 94,
+            "accuracy": 0.8867924528301887,
+            "sensitive_predicted_safe": 0,
+            "ambiguous_predicted_safe": 0
+          }
+        },
+        "thresholds": {
+          "allow": 0.8432,
+          "block": 0.8661
+        },
+        "calibration_actions": {
+          "rows": 428,
+          "block": 105,
+          "allow": 95,
+          "review": 228,
+          "sensitive_allowed": 0,
+          "ambiguous_allowed": 0,
+          "safe_blocked": 0,
+          "ambiguous_blocked": 0,
+          "safe_allowed": 95,
+          "sensitive_blocked": 105
+        },
+        "actions": {
+          "rows": 736,
+          "block": 116,
+          "allow": 133,
+          "review": 487,
+          "sensitive_allowed": 0,
+          "ambiguous_allowed": 2,
+          "safe_blocked": 0,
+          "ambiguous_blocked": 0,
+          "safe_allowed": 131,
+          "sensitive_blocked": 116
+        },
+        "latency_ms": {
+          "p50": 121.39733351068571,
+          "p95": 173.61979198176414
+        },
+        "input_tokens": [
+          191,
+          373
+        ],
+        "gpu_active_bytes": 9362245896,
+        "load_probe": {
+          "short": {
+            "n": 20,
+            "success": 20,
+            "p50_ms": 121.78404149017297,
+            "p95_ms": 123.93974995939061,
+            "successful_p95_ms": 123.93974995939061,
+            "errors": []
+          },
+          "medium": {
+            "n": 20,
+            "success": 20,
+            "p50_ms": 203.28852097736672,
+            "p95_ms": 212.11462502833456,
+            "successful_p95_ms": 212.11462502833456,
+            "errors": []
+          },
+          "long": {
+            "n": 20,
+            "success": 20,
+            "p50_ms": 433.130750519922,
+            "p95_ms": 444.31300001451746,
+            "successful_p95_ms": 444.31300001451746,
+            "errors": []
+          },
+          "concurrent4": {
+            "n": 20,
+            "success": 20,
+            "p50_ms": 304.5562710321974,
+            "p95_ms": 499.74245799239725,
+            "successful_p95_ms": 499.74245799239725,
+            "errors": []
+          },
+          "six_sequential": {
+            "n": 10,
+            "success": 10,
+            "p50_ms": 1211.3717705069575
+          }
+        },
+        "runtime": {
+          "command": [
+            "${REPO_ROOT}/judge/.train-venv/bin/python",
+            "${REPO_ROOT}/judge/training/serve_small.py",
+            "jeff-gemma-e2b"
+          ],
+          "load_seconds": 3.0382090830244124,
+          "authentication_check": 401,
+          "completed": true,
+          "elapsed_seconds": 180.265159957984
+        },
+        "tags": {
+          "counterfactual_policy": {
+            "n": 96,
+            "correct": 70,
+            "accuracy": 0.7291666666666666,
+            "sensitive_predicted_safe": 0,
+            "ambiguous_predicted_safe": 0
+          },
+          "distractor_prefix": {
+            "n": 108,
+            "correct": 92,
+            "accuracy": 0.8518518518518519,
+            "sensitive_predicted_safe": 3,
+            "ambiguous_predicted_safe": 4
+          },
+          "embedded_instruction": {
+            "n": 216,
+            "correct": 185,
+            "accuracy": 0.8564814814814815,
+            "sensitive_predicted_safe": 4,
+            "ambiguous_predicted_safe": 6
+          }
+        }
+      },
+      "adapted": {
+        "n": 736,
+        "correct": 671,
+        "accuracy": 0.9116847826086957,
+        "sensitive_predicted_safe": 14,
+        "ambiguous_predicted_safe": 25,
+        "language": {
+          "ko": {
+            "n": 370,
+            "correct": 331,
+            "accuracy": 0.8945945945945946,
+            "sensitive_predicted_safe": 10,
+            "ambiguous_predicted_safe": 12
+          },
+          "en": {
+            "n": 366,
+            "correct": 340,
+            "accuracy": 0.9289617486338798,
+            "sensitive_predicted_safe": 4,
+            "ambiguous_predicted_safe": 13
+          }
+        },
+        "policy": {
+          "commercial_terms": {
+            "n": 139,
+            "correct": 114,
+            "accuracy": 0.8201438848920863,
+            "sensitive_predicted_safe": 4,
+            "ambiguous_predicted_safe": 12
+          },
+          "customer_records": {
+            "n": 138,
+            "correct": 124,
+            "accuracy": 0.8985507246376812,
+            "sensitive_predicted_safe": 0,
+            "ambiguous_predicted_safe": 7
+          },
+          "hr_records": {
+            "n": 124,
+            "correct": 112,
+            "accuracy": 0.9032258064516129,
+            "sensitive_predicted_safe": 4,
+            "ambiguous_predicted_safe": 5
+          },
+          "personal_sensitive": {
+            "n": 106,
+            "correct": 105,
+            "accuracy": 0.9905660377358491,
+            "sensitive_predicted_safe": 0,
+            "ambiguous_predicted_safe": 0
+          },
+          "proprietary_technical": {
+            "n": 123,
+            "correct": 115,
+            "accuracy": 0.9349593495934959,
+            "sensitive_predicted_safe": 6,
+            "ambiguous_predicted_safe": 0
+          },
+          "strategic_finance": {
+            "n": 106,
+            "correct": 101,
+            "accuracy": 0.9528301886792453,
+            "sensitive_predicted_safe": 0,
+            "ambiguous_predicted_safe": 1
+          }
+        },
+        "thresholds": {
+          "allow": 0.9634,
+          "block": 0.9314
+        },
+        "calibration_actions": {
+          "rows": 428,
+          "block": 152,
+          "allow": 139,
+          "review": 137,
+          "sensitive_allowed": 0,
+          "ambiguous_allowed": 0,
+          "safe_blocked": 0,
+          "ambiguous_blocked": 0,
+          "safe_allowed": 139,
+          "sensitive_blocked": 152
+        },
+        "actions": {
+          "rows": 736,
+          "block": 222,
+          "allow": 235,
+          "review": 279,
+          "sensitive_allowed": 0,
+          "ambiguous_allowed": 4,
+          "safe_blocked": 3,
+          "ambiguous_blocked": 3,
+          "safe_allowed": 231,
+          "sensitive_blocked": 216
+        },
+        "latency_ms": {
+          "p50": 121.23264651745558,
+          "p95": 171.76075000315905
+        },
+        "input_tokens": [
+          191,
+          373
+        ],
+        "gpu_active_bytes": 9369008794,
+        "load_probe": {
+          "short": {
+            "n": 20,
+            "success": 20,
+            "p50_ms": 122.63166697812267,
+            "p95_ms": 129.57499996991828,
+            "successful_p95_ms": 129.57499996991828,
+            "errors": []
+          },
+          "medium": {
+            "n": 20,
+            "success": 20,
+            "p50_ms": 202.27366700419225,
+            "p95_ms": 209.9690409959294,
+            "successful_p95_ms": 209.9690409959294,
+            "errors": []
+          },
+          "long": {
+            "n": 20,
+            "success": 20,
+            "p50_ms": 435.0890624918975,
+            "p95_ms": 444.21637494815513,
+            "successful_p95_ms": 444.21637494815513,
+            "errors": []
+          },
+          "concurrent4": {
+            "n": 20,
+            "success": 20,
+            "p50_ms": 315.3580835205503,
+            "p95_ms": 501.4487080043182,
+            "successful_p95_ms": 501.4487080043182,
+            "errors": []
+          },
+          "six_sequential": {
+            "n": 10,
+            "success": 10,
+            "p50_ms": 1217.413104022853
+          }
+        },
+        "runtime": {
+          "command": [
+            "${REPO_ROOT}/judge/.train-venv/bin/python",
+            "${REPO_ROOT}/judge/training/serve_small.py",
+            "jeff-gemma-e2b",
+            "--adapted"
+          ],
+          "load_seconds": 3.0335996249923483,
+          "authentication_check": 401,
+          "completed": true,
+          "elapsed_seconds": 179.87132279202342
+        },
+        "tags": {
+          "counterfactual_policy": {
+            "n": 96,
+            "correct": 89,
+            "accuracy": 0.9270833333333334,
+            "sensitive_predicted_safe": 0,
+            "ambiguous_predicted_safe": 0
+          },
+          "distractor_prefix": {
+            "n": 108,
+            "correct": 94,
+            "accuracy": 0.8703703703703703,
+            "sensitive_predicted_safe": 7,
+            "ambiguous_predicted_safe": 6
+          },
+          "embedded_instruction": {
+            "n": 216,
+            "correct": 191,
+            "accuracy": 0.8842592592592593,
+            "sensitive_predicted_safe": 9,
+            "ambiguous_predicted_safe": 10
+          }
+        }
+      },
+      "paired_change": {
+        "accuracy_delta_pp": 7.336956521739135,
+        "rescued": 78,
+        "regressed": 24
+      },
+      "training": {
+        "completed": true,
+        "steps": 1438,
+        "best_dev_accuracy": 0.9578651685393258,
+        "elapsed_seconds": 934.2974657500163,
+        "peak_memory_gb": 10.339766948
+      },
+      "selection": {
+        "event": "development",
+        "step": 1438,
+        "n": 356,
+        "accuracy": 0.9578651685393258,
+        "sensitive_predicted_safe": 6,
+        "ambiguous_predicted_safe": 7
+      },
+      "development": {
+        "original": {
+          "n": 356,
+          "correct": 318,
+          "accuracy": 0.8932584269662921,
+          "sensitive_predicted_safe": 4,
+          "ambiguous_predicted_safe": 1
+        },
+        "adapted": {
+          "n": 356,
+          "correct": 341,
+          "accuracy": 0.9578651685393258,
+          "sensitive_predicted_safe": 6,
+          "ambiguous_predicted_safe": 7
+        }
+      },
+      "source": {
+        "id": "mstrasser/Jeff-Gemma4-E2B",
+        "revision": "e3de3e99a979f92afd995d4e526c7e3170ae49cf",
+        "files": [
+          {
+            "name": "NOTICE",
+            "size": 351,
+            "sha256": null,
+            "git_blob": "60ae41608da2c2d1230c055c89882ecbedd0c85a"
+          },
+          {
+            "name": "config.json",
+            "size": 2397,
+            "sha256": null,
+            "git_blob": "0ba04cccd7ccf57a095a7b7af9b5470c7951a17b"
+          },
+          {
+            "name": "tokenizer_config.json",
+            "size": 3729,
+            "sha256": null,
+            "git_blob": "bd297dce3d66737f7d6f9136691db3ad05991a2f"
+          },
+          {
+            "name": "decision_config.json",
+            "size": 6788,
+            "sha256": null,
+            "git_blob": "dcdb249536c7262a0e4d72af3d9d1e912af03694"
+          },
+          {
+            "name": "LICENSE",
+            "size": 11358,
+            "sha256": null,
+            "git_blob": "57bc88a15a0ee8266c259b2667e64608d3f7e292"
+          },
+          {
+            "name": "README.md",
+            "size": 16549,
+            "sha256": null,
+            "git_blob": "cb30bed19814eeb837010967a520204e7554991e"
+          },
+          {
+            "name": "chat_template.jinja",
+            "size": 18569,
+            "sha256": null,
+            "git_blob": "fbe3b59b625cd1b8850ea592d4203df6ec04684b"
+          },
+          {
+            "name": "model.safetensors.index.json",
+            "size": 42215,
+            "sha256": null,
+            "git_blob": "5224772b9a06d2f961b331125d74571169ceda7d"
+          },
+          {
+            "name": "readout.safetensors",
+            "size": 783440,
+            "sha256": "45f92eb9c1f2b39f4988369952bf0407d891619424c1b8530cc49ac0959676a6",
+            "git_blob": "d20c071ea4015a5c71891e1efcbb0ac088a7a288"
+          },
+          {
+            "name": "tokenizer.json",
+            "size": 32169780,
+            "sha256": "a2619fe11b50dbed06ac443c51d757b354d0b62d64baa514404d4e84e6713519",
+            "git_blob": "38a911c68ce1d6d42340d3a76102639d5c499f0f"
+          },
+          {
+            "name": "model-00001-of-00002.safetensors",
+            "size": 4532051774,
+            "sha256": "84ffe0a52f6093c245698ac42a2b0e07b66f94120a71832dd564aae91f8db156",
+            "git_blob": "f7f3c52d3be3a65a99b4aaa26e52cf07447a3087"
+          },
+          {
+            "name": "model-00002-of-00002.safetensors",
+            "size": 4725146472,
+            "sha256": "4323cd80de392ee46718ba1feb608887a20ab89a27c65825954f47693f53bb2c",
+            "git_blob": "b0020f4a7bf242b39a934d1df5a512b49c317a05"
+          }
+        ]
+      }
+    }
+  }
+}

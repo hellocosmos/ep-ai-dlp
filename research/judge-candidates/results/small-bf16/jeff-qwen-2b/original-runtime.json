@@ -1,0 +1,11 @@
+{
+  "command": [
+    "${REPO_ROOT}/judge/.train-venv/bin/python",
+    "${REPO_ROOT}/judge/training/serve_small.py",
+    "jeff-qwen-2b"
+  ],
+  "load_seconds": 2.0260346249560826,
+  "authentication_check": 401,
+  "completed": true,
+  "elapsed_seconds": 126.62752433295827
+}

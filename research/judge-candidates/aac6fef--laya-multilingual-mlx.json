@@ -1,0 +1,27 @@
+{
+  "id": "aac6fef/laya-multilingual-mlx",
+  "sha": "f2b4faf51023039425946074e2cf1361d2db11d5",
+  "lastModified": "2026-09-19T16:38:24.000Z",
+  "gated": false,
+  "library_name": "mlx",
+  "safetensors": {
+    "parameters": {
+      "F16": 321908998
+    },
+    "total": 321908998
+  },
+  "files": [
+    ".gitattributes",
+    "LICENSE",
+    "NOTICE",
+    "README.md",
+    "encoder/config.json",
+    "manifest.json",
+    "mlx_config.json",
+    "model.safetensors",
+    "rl_agent_config.json",
+    "tokenizer/tokenizer.json",
+    "tokenizer/tokenizer_config.json",
+    "validation.json"
+  ]
+}

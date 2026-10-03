@@ -1,0 +1,4 @@
+-r requirements.txt
+pytest==9.1.1
+transformers==5.18.0
+mistral-common==1.12.0

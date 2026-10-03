@@ -1,0 +1,23 @@
+{
+  "id": "alfred361/laya-multilingual-typed-decisions",
+  "sha": "60ce5be491a7723df937b757e43b254a08898f8e",
+  "lastModified": "2026-09-21T12:52:51.000Z",
+  "gated": false,
+  "library_name": "transformers",
+  "safetensors": {
+    "parameters": {
+      "F16": 321908998
+    },
+    "total": 321908998
+  },
+  "files": [
+    ".gitattributes",
+    "README.md",
+    "benchmark_report.json",
+    "encoder/config.json",
+    "model.safetensors",
+    "rl_agent_config.json",
+    "tokenizer/tokenizer.json",
+    "tokenizer/tokenizer_config.json"
+  ]
+}

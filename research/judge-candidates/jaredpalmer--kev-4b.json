@@ -1,0 +1,26 @@
+{
+  "id": "jaredpalmer/kev-4b",
+  "sha": "6cfce5c2fa4b4bd64026336ab649c5ca78857d52",
+  "lastModified": "2026-10-01T17:18:26.000Z",
+  "gated": false,
+  "library_name": "peft",
+  "safetensors": null,
+  "files": [
+    ".gitattributes",
+    "README.md",
+    "adapter_config.json",
+    "adapter_model.safetensors",
+    "added_tokens.json",
+    "head.pt",
+    "merges.txt",
+    "provenance.json",
+    "result.json",
+    "special_tokens_map.json",
+    "tokenizer.json",
+    "tokenizer_config.json",
+    "train.log",
+    "training_config.json",
+    "training_metrics.json",
+    "vocab.json"
+  ]
+}

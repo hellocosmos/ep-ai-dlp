@@ -14,6 +14,17 @@
 
 ![Inspection events](docs/assets/console-events-dark.png)
 
+## 受 Jev 启发的本地判断模型
+
+受 Jev 启发，我把小型判断模型应用到 AI DLP，用于补充正则表达式难以处理的交易条款、业务上下文和策略语义。为了避免将敏感内容发送给商业 AI API 进行检查所带来的额外外传风险，我实现了本地推理和面向 DLP 的微调。亲自实现并测试后，我的感受是：这个思路确实有用，值得继续发展。这并非 Jev 官方 API 集成或合作声明。
+
+确定性规则继续检查结构化标识符和已知秘密模式；模型返回分类分数，独立策略引擎负责权限、审批、允许、阻止和人工复核。显式配置远程推理时，文本会发送到该服务器，必须保留在组织的可信边界内。
+
+在同一 M4 Max、BF16 和重复使用的 736 条合成测试上，原始→微调准确率为 Decider 2B **66.6→81.8%**、Jeff Qwen 2B **82.7→89.9%**、Jeff Gemma4 E2B **83.8→91.2%**；微调后 API 中位延迟为 68/87/121ms。测试来自 54 个合成源文档系列，不代表生产准确率。新小模型未接入 Windows 强制执行路径，也未替换运行中的默认模型。
+
+[运行指南](docs/local-judge.md) · [API](docs/jev-api.md) · [训练](judge/training/README.md) · [完整结果](research/judge-candidates/SMALL_MODEL_FINETUNING.md)
+
+
 ## 已实现
 
 - Rust 运行时：选择性 TCP/TLS 检查、有界请求解析和确定性检测。
