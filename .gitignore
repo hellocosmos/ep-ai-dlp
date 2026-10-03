@@ -6,7 +6,8 @@ __pycache__/
 **/target/
 **/dist/
 **/.next/
-**/bin/
+proxy/**/bin/
+research/hudsucker-spike/harness/bin/
 **/obj/
 *.tsbuildinfo
 .env
