@@ -61,7 +61,8 @@ Re-run against the curated public source on macOS:
 - PostgreSQL-backed control-plane tests: 11 passed (isolated test schema).
 - Native Rust unit tests: 29 passed; native binaries built successfully.
 - Controlled TLS acceptance harness: 39 passed, 0 failed.
-- Legacy Python tests: 123 passed.
+- Legacy Python agent tests: 123 passed.
+- Fresh GitHub clone: Rust binaries rebuilt; controlled TLS harness 39/39; Python agent plus browser-state tests 160/160 passed.
 - English console: four synthetic-fixture screenshots, no browser runtime errors.
 
 These checks do not repeat the Windows live-provider acceptance. The public
