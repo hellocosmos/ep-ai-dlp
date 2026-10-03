@@ -1,6 +1,6 @@
-# Standalone Jev-like decision API
+# On-premises decision API — Jev-inspired
 
-The inference service is independently runnable on a Mac or GPU server. It has no DLP policies, approval store, receiving sink or tool-execution capability. This is the `aidlp-decision-v1` contract around Jev-like public decision models, **not** an official Jev vendor API or an assertion of vendor wire compatibility.
+The intended deployment is a company-hosted, on-premises LLM API server, separate from employee endpoints. The inference service is independently runnable; the Mac setup below is a development/benchmark environment, while the GPU-server instructions describe a deployment path still requiring physical-server qualification. Employee PCs do not need model weights or GPU inference runtimes. Inspection text is sent to the internal API server, so it stays within the company boundary rather than staying on each PC. It has no DLP policies, approval store, receiving sink or tool-execution capability. This is the `aidlp-decision-v1` contract around Jev-like public decision models, **not** an official Jev vendor API or an assertion of vendor wire compatibility.
 
 ```text
 Console :3100 -> DLP policy / enforcement :8310
@@ -14,7 +14,7 @@ Console :3100 -> DLP policy / enforcement :8310
 
 The DLP process imports `JevClient`; it does not create a model worker or load weights. It owns all allow/block/review/redact rules, policy revisions, source authorization, approval and dispatch. The separate service returns only bounded choice scores plus model/version/runtime/latency/token metadata.
 
-## Run locally
+## Reproduce the single-Mac development setup
 
 Use the environment setup in [local-judge.md](local-judge.md), then in separate terminals:
 
@@ -25,7 +25,7 @@ scripts/start-judge.sh
 
 The API creates a random bearer token at `.local/jev-state/api.token` with mode 0600. The DLP service reads that same token file on startup. The existing console remains on port 3100. The inference API binds to loopback 8311; use `AIDLP_JEV_PORT` to change its port.
 
-## Run inference on an NVIDIA GPU server
+## Deploy the internal inference API on an on-premises NVIDIA GPU server
 
 Copy the source folders `judge/aidlp_judge/`, `research/judge-models/`, `judge/requirements-inference.txt` and `scripts/start-jev.sh` into the same directory structure on the GPU host. Do not copy the Mac's `.local/`, credentials, audit database, `.venv/` or model cache. A Python 3.12 environment, working NVIDIA driver/CUDA toolkit and C/C++ compiler are prerequisites.
 
@@ -37,6 +37,8 @@ scripts/start-jev.sh
 ```
 
 The build option follows the [official llama-cpp-python CUDA instructions](https://github.com/abetlen/llama-cpp-python#installation-configuration). The same runtime adapter uses GPU layer offload. Metal is verified on this Mac; **the CUDA build and physical remote GPU execution have not been tested in this task**. A Linux result reports `GPU-offload` rather than claiming a specific backend without evidence.
+
+These commands apply to the existing GGUF/llama.cpp inference service, not automatic CUDA qualification of the experimental MLX small-model adapters. Those adapters require a separately validated serving/export path.
 
 Place a TLS reverse proxy on the GPU host in front of loopback 8311. Restrict ingress to the DLP host and disable request-body logging. Do not expose the bare HTTP listener publicly. Provision the inference token securely into a mode-0600 file on the DLP host, then configure only the DLP service:
 

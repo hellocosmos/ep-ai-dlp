@@ -13,25 +13,26 @@
 
 EP AI DLP explores an endpoint enforcement boundary for external AI use:
 select the applications and destinations, inspect supported requests locally,
-enforce a signed policy, and report decisions without collecting protected text.
+enforce a signed policy, and report metadata rather than protected text in audit events.
+Semantic inspection uses the separate internal API described below and transmits inspection text to that server.
 
-## Why I added a local Judge — inspired by Jev
+## Why I added an on-premises decision API — inspired by Jev
 
-> “Jev inspired me to apply small decision models to AI DLP. Regular expressions are useful for structured identifiers and known secret patterns, but I wanted to go further: recognize private deal terms, internal business context, and policy meaning. Sending sensitive content to a commercial AI API just to inspect it creates another data-exposure concern. So I built and fine-tuned a local decision layer. After trying it myself, my conclusion was: this is useful in the prototype and worth developing further.” — Jaemyung Kim
+> “Jev inspired me to apply small decision models to AI DLP. Regular expressions are useful for structured identifiers and known secret patterns, but I wanted to go further: recognize private deal terms, internal business context, and policy meaning. Sending sensitive content to a commercial AI API just to inspect it creates another data-exposure concern. So I built and fine-tuned a decision layer for a company-hosted API service. After trying it myself, my conclusion was: this is useful in the prototype and worth developing further.” — Jaemyung Kim
 
-The implementation combines deterministic detection with local, policy-conditioned semantic decisions. Regex and hard security rules still protect identifiers and secrets; the model adds context-sensitive classification. The decision model returns choice scores, while a separate policy engine owns allow/block/review/redact, authorization, approval, audit and delivery. Local inference keeps inspection content off third-party commercial inference APIs. An explicitly configured remote inference host does receive the text and must remain within the organization's trusted boundary.
+The implementation combines deterministic detection with policy-conditioned semantic decisions. Regex and hard security rules still protect identifiers and secrets; the model adds context-sensitive classification. The decision model returns choice scores, while a separate policy engine owns allow/block/review/redact, authorization, approval, audit and delivery. **The intended deployment is a company-hosted, on-premises LLM API server.** Endpoint agents enforce policy and use the internal judgment service; employees do not run model weights on their own PCs. Inspection text leaves the endpoint for the internal server, staying within the organization's controlled environment rather than going to a third-party commercial inference API. The current Windows enforcement path has not yet been integrated with these experimental small models; see the [architecture and implementation boundary](docs/architecture.md#on-premises-semantic-judgment-target-architecture).
 
-The repository now includes the **Local Judge** experimental console workspace, an independently runnable Jev-inspired decision API, a bilingual synthetic DLP training corpus, LoRA training, and measured comparisons. This is an independent implementation, not an official Jev API integration or an affiliation claim. The experimental scenario workspace retains Korean content; the existing English endpoint-management console is preserved.
+The repository now includes the **Local Judge** experimental console workspace (its current UI label, not a per-PC deployment requirement), an independently runnable Jev-inspired decision API, a bilingual synthetic DLP training corpus, LoRA training, and measured comparisons. This is an independent implementation, not an official Jev API integration or an affiliation claim. The experimental scenario workspace retains Korean content; the existing English endpoint-management console is preserved.
 
-| Public decision checkpoint | Original accuracy | After local DLP fine-tuning | Fine-tuned API median |
+| Public decision checkpoint | Original accuracy | After DLP fine-tuning | Fine-tuned API median |
 |---|---:|---:|---:|
 | Decider 2B | 66.6% | 81.8% | 68 ms |
 | Jeff Qwen3.5 2B | 82.7% | 89.9% | 87 ms |
 | Jeff Gemma4 E2B | 83.8% | 91.2% | 121 ms |
 
-Measured on the same Apple M4 Max, BF16, 736 reused synthetic test decisions from 54 source families. These numbers show prototype utility, not production DLP accuracy. Accuracy, calibrated routing errors and review coverage are reported separately. The new small-model adapters were not installed into Windows enforcement or selected as the running default.
+Measured on the same Apple M4 Max, BF16, 736 reused synthetic test decisions from 54 source families. The Mac is the development/benchmark host, not an employee-PC requirement or a production server sizing result. Physical on-premises GPU-server operation and endpoint-to-server integration still require qualification. These numbers show prototype utility, not production DLP accuracy. Accuracy, calibrated routing errors and review coverage are reported separately. The new small-model adapters were not installed into Windows enforcement or selected as the running default.
 
-- [Local Judge setup, controls and limits](docs/local-judge.md)
+- [Judge development setup, on-premises deployment boundary and limits](docs/local-judge.md)
 - [Standalone decision API](docs/jev-api.md)
 - [Training corpus and pipeline](judge/training/README.md)
 - [Full six-condition results and operating-point tradeoffs](research/judge-candidates/SMALL_MODEL_FINETUNING.md)

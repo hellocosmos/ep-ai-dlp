@@ -1,5 +1,7 @@
 # Bilingual AI DLP decision-model training
 
+**Deployment context:** the judgment LLM is intended to run behind a company-hosted, on-premises API. Employee endpoints enforce policy and do not need these model weights or the Apple Silicon training/runtime environment. The Mac measurements below are development experiments, not production server sizing or proof of Windows integration. See the [deployment architecture](../../docs/architecture.md).
+
 This pipeline trains an experimental Decider 4B adapter for policy-conditioned content classification. It does not learn organization permissions, approve a tool call, or transmit documents. The incumbent DLP API and Windows endpoint remain unchanged.
 
 ## Dataset

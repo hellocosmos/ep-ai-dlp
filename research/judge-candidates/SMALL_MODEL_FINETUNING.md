@@ -1,5 +1,7 @@
 # Small decision models: original versus DLP adaptation
 
+**Deployment context:** the judgment LLM is intended to run behind a company-hosted, on-premises API. Employee endpoints enforce policy and do not need these model weights or the Apple Silicon training/runtime environment. The Mac measurements below are development experiments, not production server sizing or proof of Windows integration. See the [deployment architecture](../../docs/architecture.md).
+
 Completed on 2026-10-03. All three models were actually trained and all six original/adapted conditions were measured through the same local API. No production default was changed.
 
 The adapted Jeff Qwen3.5 2B is the preferred candidate for the next deployment-oriented qualification: 89.95% test accuracy, 86.9 ms median API response, and 3.83 GB peak active GPU allocation during the quality run. Adapted Jeff Gemma4 E2B achieved the highest observed accuracy, 91.17%, but used 9.37 GB and took 121.2 ms. Its nine extra correct answers were all in the Korean subset; the English correct counts were identical. This small synthetic difference does not establish general superiority.

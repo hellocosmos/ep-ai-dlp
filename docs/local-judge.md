@@ -1,8 +1,14 @@
-# Local policy Judge MVP
+# Policy Judge MVP — development setup and on-premises deployment
 
-Implemented and measured on 2026-10-03, Apple M4 Max, 36 GiB unified memory. This MVP adds a local policy Judge to the existing console. It does not deploy the Judge to Windows or connect to Microsoft/Google tenants.
+Implemented and measured on 2026-10-03, Apple M4 Max, 36 GiB unified memory. This MVP adds a separate policy Judge API to the existing console. It does not deploy the Judge to Windows or connect to Microsoft/Google tenants.
 
-## Open and run
+## Deployment intent and verified scope
+
+The intended product deployment places the judgment LLM on a company-hosted, on-premises API server. Endpoint agents enforce policy and use the internal decision service; model weights are not required on employee PCs. Inspection text is transmitted to the internal server, so the data boundary is the company environment rather than each device.
+
+The instructions below reproduce the single-Mac development setup. “Local Judge” is the existing console label. Apple Silicon/Metal requirements apply to this development environment, not to employee endpoints. The standalone API supports a separately configured HTTPS inference host; physical GPU-server operation, server capacity and Windows semantic-enforcement integration remain unqualified. See the [target architecture](architecture.md#on-premises-semantic-judgment-target-architecture) and [internal API deployment guide](jev-api.md).
+
+## Open and run the development environment
 
 Open <http://127.0.0.1:3100/> with the existing administrator account, then select **Local Judge**. The experimental workspace retains its Korean scenario/policy content. The screen contains six scenario tests, a semantic policy editor, measured model comparison, and metadata audit. With the current configuration, uploaded files and typed text are processed on this Mac. A configured remote Jev endpoint receives the extracted text for inference. An allow or redact decision actually POSTs extracted/sanitized text to an authenticated loopback receiver. A block/review decision does not call it.
 
@@ -29,7 +35,7 @@ For the console, use the existing `npm run build -w @aidlp/console` then `npm ru
 
 The first service start creates `.local/judge-state/` with directory mode 0700, bearer-token files and SQLite database mode 0600. The browser never receives either backend token: the Next server verifies the existing administrator session with the control plane and then proxies to DLP. DLP uses a different bearer token to call the standalone Jev API. Optionally set `AIDLP_JUDGE_TOKEN_FILE` for a different server-side token-file location. Do not print these tokens or place them in URLs. Stop the foreground service with Ctrl-C; stop the separate Jev service to terminate its owned inference worker. No launch-at-login or recurring automation was added.
 
-## Architecture and enforcement
+## Current development architecture and enforcement
 
 ```text
 Browser / controlled adapter

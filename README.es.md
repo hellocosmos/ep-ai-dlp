@@ -14,13 +14,15 @@ Consola real con datos sintéticos de interfaz. Nombres, contadores y estados il
 
 ![Inspection events](docs/assets/console-events-dark.png)
 
-## Un modelo de decisión local inspirado en Jev
+## Una API de decisión on-premises inspirada en Jev
 
-Jev me inspiró a aplicar pequeños modelos de decisión a AI DLP para complementar las limitaciones de las expresiones regulares al interpretar condiciones comerciales, contexto y políticas. Enviar contenido sensible a una API comercial de IA para inspeccionarlo introduce otra preocupación de exposición. Por eso implementé inferencia local y ajuste con datos DLP. Tras construirlo y probarlo, mi conclusión personal fue: es útil y merece seguir desarrollándose. No implica integración oficial ni afiliación con Jev.
+Jev me inspiró a aplicar pequeños modelos de decisión a AI DLP para complementar las limitaciones de las expresiones regulares al interpretar condiciones comerciales, contexto y políticas. Enviar contenido sensible a una API comercial de IA para inspeccionarlo introduce otra preocupación de exposición. Por eso implementé una capa de decisión para una API interna y ajuste con datos DLP. Tras construirlo y probarlo, mi conclusión personal fue: es útil y merece seguir desarrollándose. No implica integración oficial ni afiliación con Jev.
 
-Las reglas deterministas siguen detectando identificadores y secretos conocidos. El modelo devuelve puntuaciones; un motor separado controla permisos, aprobación, bloqueo y revisión. Un servidor de inferencia remoto configurado explícitamente recibe el texto y debe permanecer dentro del perímetro de confianza de la organización.
+Las reglas deterministas siguen detectando identificadores y secretos conocidos. El modelo devuelve puntuaciones; un motor separado controla permisos, aprobación, bloqueo y revisión. **El despliegue previsto es un servidor API LLM on-premises dentro de la empresa.** Los agentes de los PCs aplican las políticas y utilizan el servicio interno de decisión; los empleados no ejecutan el LLM en sus propios PCs. El texto de inspección viaja del endpoint al servidor interno y permanece en el entorno controlado de la empresa. “Local Judge” es el nombre actual del espacio experimental de la consola.
 
 En el mismo M4 Max, BF16 y 736 decisiones sintéticas reutilizadas, la precisión original→ajustada fue **66.6→81.8%** para Decider 2B, **82.7→89.9%** para Jeff Qwen 2B y **83.8→91.2%** para Jeff Gemma4 E2B. Mediana de API ajustada: 68/87/121ms. Son 54 familias sintéticas, no una garantía de precisión en producción. Los nuevos modelos pequeños no se instalaron en la protección de Windows ni sustituyeron el modelo predeterminado en ejecución.
+
+El M4 Max es el equipo de desarrollo y medición, no un requisito para los PCs ni un dimensionamiento del servidor de producción. La operación en un servidor GPU interno y la integración con endpoints aún requieren validación.
 
 [Guía](docs/local-judge.md) · [API](docs/jev-api.md) · [Entrenamiento](judge/training/README.md) · [Resultados](research/judge-candidates/SMALL_MODEL_FINETUNING.md)
 
