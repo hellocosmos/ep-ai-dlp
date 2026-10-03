@@ -1,0 +1,56 @@
+name: autofix.ci
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  MSRV: "1.95"  # Minimum Supported Rust Version
+
+jobs:
+  protobuf:
+    runs-on: macos-latest
+    steps:
+      - uses: mhils/workflows/checkout@5b6540d578f48644ffa5e955cedadc81034cb7d8  # v18.0
+      # FIXME: https://github.com/mitmproxy/mitmproxy/issues/7877 - bump SwiftProtobuf and then re-add this here.
+      # - run: brew install swift-protobuf
+      - run: brew install protobuf
+      - run: cargo install --locked protoc-gen-prost@0.5.0
+      - run: protoc --proto_path=./src/ipc/ mitmproxy_ipc.proto
+          --prost_out=./src/ipc/
+          --prost_opt="bytes=data"
+          --prost_opt="flat_output_dir=true"
+          # --swift_out=./mitmproxy-macos/redirector/ipc
+      - run: cargo fmt --all
+      - uses: autofix-ci/action@c5b2d67aa2274e7b5a18224e8171550871fc7e4a
+
+  rustfmt:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+          - os: macos-latest
+          - os: ubuntu-latest
+    steps:
+      - uses: mhils/workflows/checkout@5b6540d578f48644ffa5e955cedadc81034cb7d8  # v18.0
+      - uses: ./.github/actions/setup
+        with:
+          rust-version: ${{ env.MSRV }}
+          toolchain-args: --component rustfmt --component clippy
+
+        # We could run clippy on mitmproxy-linux-ebpf with
+        #   cargo +nightly clippy --workspace -- -C panic=abort -Zpanic_abort_tests
+        # but that means we'd use nightly clippy, which may change its behavior (and thus break CI).
+        # So we rather exempt mitmproxy-linux-ebpf from clippy lints.
+      - run: cargo clippy --fix --allow-dirty --workspace --exclude mitmproxy-linux-ebpf
+      - run: cargo fmt --all
+      - run: git checkout src/ipc/mitmproxy_ipc.rs
+
+      - uses: autofix-ci/action@c5b2d67aa2274e7b5a18224e8171550871fc7e4a

@@ -1,0 +1,13 @@
+[package]
+name = "aidlp-hudsucker-spike"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+hudsucker = { path = "vendor/hudsucker", default-features = false, features = ["rcgen-ca", "http2"] }
+hyper-rustls = { version = "0.27", default-features = false, features = ["http1", "http2", "tls12", "ring"] }
+http-body-util = "0.1"
+tokio = { version = "1", features = ["full"] }
+rustls = { version = "0.23", default-features = false, features = ["ring", "std", "tls12"] }
+rustls-pemfile = "2"
+serde_json = "1"

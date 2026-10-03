@@ -1,0 +1,182 @@
+use std::collections::HashMap;
+use std::sync::Arc;
+
+use anyhow::{Context, Result};
+use pyo3::exceptions::asyncio::CancelledError;
+use pyo3::prelude::*;
+use pyo3_async_runtimes::TaskLocals;
+use tokio::sync::{Mutex, mpsc};
+use tokio::task::JoinHandle;
+
+use crate::stream::Stream;
+use crate::stream::StreamState;
+use mitmproxy::messages::{ConnectionId, TransportCommand, TransportEvent};
+use mitmproxy::shutdown;
+
+pub struct PyInteropTask {
+    locals: TaskLocals,
+    transport_commands: mpsc::UnboundedSender<TransportCommand>,
+    transport_events: mpsc::Receiver<TransportEvent>,
+    py_tcp_handler: Py<PyAny>,
+    py_udp_handler: Py<PyAny>,
+    shutdown: shutdown::Receiver,
+}
+
+impl PyInteropTask {
+    #[allow(clippy::too_many_arguments)]
+    pub fn new(
+        transport_commands: mpsc::UnboundedSender<TransportCommand>,
+        transport_events: mpsc::Receiver<TransportEvent>,
+        py_tcp_handler: Py<PyAny>,
+        py_udp_handler: Py<PyAny>,
+        shutdown: shutdown::Receiver,
+    ) -> Result<Self> {
+        // Note: The current asyncio event loop needs to be determined here on the main thread.
+        let locals = Python::attach(|py| -> Result<TaskLocals, PyErr> {
+            let py_loop = pyo3_async_runtimes::tokio::get_current_loop(py)?;
+            TaskLocals::new(py_loop).copy_context(py)
+        })
+        .context("failed to get python task locals")?;
+
+        Ok(PyInteropTask {
+            locals,
+            transport_commands,
+            transport_events,
+            py_tcp_handler,
+            py_udp_handler,
+            shutdown,
+        })
+    }
+
+    pub async fn run(mut self) -> Result<()> {
+        let active_streams = Arc::new(Mutex::new(HashMap::new()));
+
+        loop {
+            tokio::select! {
+                // wait for graceful shutdown
+                _ = self.shutdown.recv() => break,
+                // wait for network events
+                event = self.transport_events.recv() => {
+                    let Some(event) = event else {
+                        // channel was closed
+                        break;
+                    };
+                    match event {
+                        TransportEvent::ConnectionEstablished {
+                            connection_id,
+                            src_addr,
+                            dst_addr,
+                            tunnel_info,
+                            command_tx,
+                        } => {
+                            let command_tx = command_tx.unwrap_or_else(|| self.transport_commands.clone());
+                            // initialize new stream
+                            let stream = Stream {
+                                connection_id,
+                                state: StreamState::Open,
+                                command_tx,
+                                peername: src_addr,
+                                sockname: dst_addr,
+                                tunnel_info,
+                            };
+
+                            let mut conns = active_streams.lock().await;
+
+                            // spawn connection handler coroutine
+                            if let Err(err) = Python::attach(|py| -> Result<(), PyErr> {
+
+                                // calling Python coroutine object yields an awaitable object
+                                let coro = if connection_id.is_tcp() {
+                                    self.py_tcp_handler.call1(py, (stream, ))?
+                                } else {
+                                    self.py_udp_handler.call1(py, (stream, ))?
+                                };
+
+                                // convert Python awaitable into Rust Future
+                                let future = pyo3_async_runtimes::into_future_with_locals(&self.locals, coro.into_bound(py))?;
+
+                                // run Future on a new Tokio task
+                                let handle = {
+                                    let active_streams = active_streams.clone();
+                                    tokio::spawn(async move {
+                                        if let Err(err) = future.await {
+                                            let is_cancelled = Python::attach(|py| err.is_instance_of::<CancelledError>(py));
+                                            if !is_cancelled {
+                                                log::error!("TCP connection handler coroutine raised an exception:\n{err}");
+                                            }
+                                        }
+                                        active_streams.lock().await.remove(&connection_id);
+                                    })
+                                };
+
+                                conns.insert(connection_id, handle);
+
+                                Ok(())
+                            }) {
+                                log::error!("Failed to spawn connection handler:\n{err}");
+                            };
+                        },
+                    }
+                }
+            };
+        }
+
+        log::debug!("Python interoperability task shutting down.");
+
+        shutdown_connection_handlers(&active_streams).await;
+        Ok(())
+    }
+}
+
+async fn shutdown_connection_handlers(
+    active_streams: &Mutex<HashMap<ConnectionId, JoinHandle<()>>>,
+) {
+    let streams = std::mem::take(&mut *active_streams.lock().await);
+    for (_, handle) in streams {
+        if handle.is_finished() {
+            // Future is already finished: just await;
+            // Python exceptions are already logged by the wrapper coroutine
+            if let Err(err) = handle.await {
+                log::warn!("TCP connection handler coroutine could not be joined: {err}");
+            }
+        } else {
+            // Future is not finished: abort tokio task
+            handle.abort();
+
+            if let Err(err) = handle.await
+                && !err.is_cancelled()
+            {
+                // JoinError was not caused by cancellation: coroutine panicked, log error
+                log::error!("TCP connection handler coroutine panicked: {err}");
+            }
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use mitmproxy::messages::ConnectionIdGenerator;
+
+    #[tokio::test]
+    async fn shutdown_joins_every_connection_handler() {
+        for count in [0, 1, 8] {
+            let mut ids = ConnectionIdGenerator::tcp();
+            let mut streams = HashMap::new();
+            let mut handles = Vec::new();
+            for _ in 0..count {
+                let task = tokio::spawn(std::future::pending::<()>());
+                handles.push(task.abort_handle());
+                streams.insert(ids.next_id(), task);
+            }
+            let active_streams = Mutex::new(streams);
+            shutdown_connection_handlers(&active_streams).await;
+            let finished = handles.iter().filter(|handle| handle.is_finished()).count();
+            for handle in handles {
+                handle.abort();
+            }
+            assert!(active_streams.lock().await.is_empty());
+            assert_eq!(finished, count, "shutdown detached unfinished handlers");
+        }
+    }
+}

@@ -1,0 +1,502 @@
+diff --git a/mitmproxy-windows/redirector/src/main2.rs b/mitmproxy-windows/redirector/src/main2.rs
+index 6395383..38fdd8e 100644
+--- a/mitmproxy-windows/redirector/src/main2.rs
++++ b/mitmproxy-windows/redirector/src/main2.rs
+@@ -16,14 +16,14 @@ use mitmproxy::windows::network::network_table;
+ use mitmproxy::processes::get_process_name;
+ use mitmproxy::MAX_PACKET_SIZE;
+ use prost::Message;
+-use std::io::Cursor;
+ use tokio::io::{AsyncReadExt, AsyncWriteExt};
+ use tokio::net::windows::named_pipe::{ClientOptions, NamedPipeClient, PipeMode};
+ use tokio::sync::mpsc;
+-use tokio::sync::mpsc::{UnboundedReceiver, UnboundedSender};
++use tokio::sync::mpsc::{Receiver, Sender};
+ use windivert::address::WinDivertAddress;
+ use windivert::prelude::*;
+ 
++
+ #[derive(Debug)]
+ enum Event {
+     NetworkPacket(WinDivertAddress<NetworkLayer>, Vec<u8>),
+@@ -102,20 +102,20 @@ async fn main() -> Result<()> {
+         .open(pipe_name)
+         .context("Cannot open pipe")?;
+ 
+-    let (event_tx, mut event_rx) = mpsc::unbounded_channel::<Event>();
+-    let (mut ipc_tx, ipc_rx) = mpsc::unbounded_channel::<ipc::PacketWithMeta>();
++    let (event_tx, mut event_rx) = mpsc::channel::<Event>(256);
++    let (mut ipc_tx, ipc_rx) = mpsc::channel::<ipc::PacketWithMeta>(256);
+ 
+     // We currently rely on handles being automatically closed when the program exits.
+     // only needed for forward mode
+     // let _icmp_handle = WinDivert::new("icmp", WinDivertLayer::Network, 1042, WinDivertFlags::new().set_drop()).context("Error opening WinDivert handle")?;
+ 
+     let socket_handle = WinDivert::socket(
+-        "tcp || udp",
++        "tcp",
+         1041,
+         WinDivertFlags::new().set_recv_only().set_sniff(),
+     )?;
+     // WinDivert's syntax supports IP ranges (https://github.com/basil00/Divert/issues/250#issuecomment-723515347)
+-    let wd_net_filter = "!loopback && ((ip && remoteAddr < 224.0.0.0) || (ipv6 && remoteAddr < ff00::)) && (tcp || udp)";
++    let wd_net_filter = "!loopback && ((ip && remoteAddr < 224.0.0.0) || (ipv6 && remoteAddr < ff00::)) && tcp";
+     let network_handle = WinDivert::network(wd_net_filter, 1040, WinDivertFlags::new())?;
+     let inject_handle = WinDivert::network("false", 1039, WinDivertFlags::new().set_send_only())?;
+ 
+@@ -125,7 +125,7 @@ async fn main() -> Result<()> {
+     thread::spawn(move || relay_network_events(network_handle, tx_clone));
+ 
+     let mut state = InterceptConf::disabled();
+-    event_tx.send(Event::Ipc(ipc::from_proxy::Message::InterceptConf(state.clone().into())))?;
++    event_tx.send(Event::Ipc(ipc::from_proxy::Message::InterceptConf(state.clone().into()))).await?;
+ 
+     tokio::spawn(async move {
+         if let Err(e) = handle_ipc(ipc_client, ipc_rx, event_tx).await {
+@@ -134,10 +134,11 @@ async fn main() -> Result<()> {
+         }
+     });
+ 
+-    let mut connections = LruCache::<ConnectionId, ConnectionState>::with_expiry_duration(
+-        Duration::from_secs(60 * 10),
++    let mut connections = LruCache::<ConnectionId, ConnectionState>::with_expiry_duration_and_capacity(
++        Duration::from_secs(60 * 10), 4096,
+     );
+     let mut active_listeners = ActiveListeners::new();
++    let mut _udp_guard: Option<WinDivert<SocketLayer>> = None;
+ 
+     loop {
+         let result = event_rx.recv().await.unwrap();
+@@ -180,7 +181,8 @@ async fn main() -> Result<()> {
+                             process_packet(address, packet, s, &inject_handle, &mut ipc_tx).await?;
+                         }
+                         ConnectionState::Unknown(packets) => {
+-                            packets.push((address, packet));
++                            // Bounded unresolved packet retention; overflow is dropped.
++                            if packets.len() < 2 { packets.push((address, packet)); }
+                         }
+                     },
+                     None => {
+@@ -353,13 +355,23 @@ async fn main() -> Result<()> {
+                 inject_handle.send(&packet)?;
+             }
+             Event::Ipc(ipc::from_proxy::Message::InterceptConf(conf)) => {
+-                state = conf.try_into()?;
++                let next: InterceptConf = conf.try_into()?;
++                let next_udp_guard = open_udp_guard(&next)?;
++                // Install the kernel guard BEFORE checking for preexisting sockets.
++                // A protected workflow must start without any prior UDP endpoint.
++                let initial_table = network_table()?;
++                if initial_table.iter().any(|e| e.protocol == 17 && next.should_intercept(&ProcessInfo { pid: e.pid, process_name: None })) {
++                    return Err(anyhow!("protected process has preexisting UDP sockets"));
++                }
++                _udp_guard = next_udp_guard;
++                state = next;
+                 info!("{}", state.description());
+ 
+                 // Handle preexisting connections.
+                 connections.clear();
+                 active_listeners.clear();
+-                for e in network_table()? {
++                for e in initial_table {
++                    if e.protocol != 6 { continue; }
+                     let proc_info = ProcessInfo {
+                         pid: e.pid,
+                         process_name: get_process_name(e.pid)
+@@ -396,50 +408,52 @@ async fn main() -> Result<()> {
+     }
+ }
+ 
+-async fn handle_ipc(
+-    mut ipc: NamedPipeClient,
+-    mut ipc_rx: UnboundedReceiver<ipc::PacketWithMeta>,
+-    tx: UnboundedSender<Event>,
+-) -> Result<()> {
+-    let mut buf = [0u8; IPC_BUF_SIZE];
+-    loop {
+-        tokio::select! {
+-            r = ipc.read(&mut buf) => {
+-                match r {
+-                    Ok(len) if len > 0 => {
+-
+-                        let mut cursor = Cursor::new(&buf[..len]);
+-                        let Ok(FromProxy { message: Some(message)}) = FromProxy::decode(&mut cursor) else {
+-                            return Err(anyhow!("Received invalid IPC message: {:?}", &buf[..len]));
+-                        };
+-                        assert_eq!(cursor.position(), len as u64);
+-
+-                        tx.send(Event::Ipc(message))?;
+-                    }
+-                    _ => {
+-                        info!("IPC read failed. Exiting.");
+-                        std::process::exit(0);
+-                    }
+-                }
+-            },
+-            Some(packet) = ipc_rx.recv() => {
+-                packet.encode(&mut buf.as_mut_slice())?;
+-                let len = packet.encoded_len();
++// Native runtime accepts one exact PID, never process-name or exclusion patterns.
++fn open_udp_guard(state: &InterceptConf) -> Result<Option<WinDivert<SocketLayer>>> {
++    let actions = state.actions();
++    if actions.is_empty() && !state.default() { return Ok(None); }
++    anyhow::ensure!(!state.default() && actions.len() == 1, "capture requires one exact PID");
++    let pid: u32 = actions[0].parse().context("capture requires a numeric PID")?;
++    anyhow::ensure!(pid > 4, "invalid protected PID");
++    let filter = format!("udp && processId == {pid} && (event == BIND || event == CONNECT)");
++    Ok(Some(WinDivert::socket(&filter, 1042, WinDivertFlags::new().set_recv_only().set_drop())
++        .context("cannot install protected UDP socket guard")?))
++}
+ 
+-                ipc.write_all(&buf[..len]).await?;
+-            }
++async fn handle_ipc(ipc: NamedPipeClient, mut ipc_rx: Receiver<ipc::PacketWithMeta>, tx: Sender<Event>) -> Result<()> {
++    // Independent read/write futures prevent a circular wait between bounded queues.
++    let (mut reader, mut writer) = tokio::io::split(ipc);
++    let read = async {
++        let mut buf = [0u8; IPC_BUF_SIZE];
++        loop {
++            let len = reader.read(&mut buf).await?;
++            if len == 0 { return Err(anyhow!("inspection host disconnected")); }
++            let FromProxy { message: Some(message) } = FromProxy::decode(&buf[..len])? else {
++                return Err(anyhow!("invalid host message"));
++            };
++            tx.send(Event::Ipc(message)).await?;
+         }
+-    }
++        #[allow(unreachable_code)] Ok::<(), anyhow::Error>(())
++    };
++    let write = async {
++        while let Some(packet) = ipc_rx.recv().await {
++            let buf = packet.encode_to_vec();
++            writer.write_all(&buf).await?;
++        }
++        Err::<(), anyhow::Error>(anyhow!("packet queue closed"))
++    };
++    tokio::try_join!(read, write)?;
++    Ok(())
+ }
+ 
+ /// Repeatedly call WinDivertRecvEx to get socket info and feed them into the channel.
+-fn relay_socket_events(handle: WinDivert<SocketLayer>, tx: UnboundedSender<Event>) {
++fn relay_socket_events(handle: WinDivert<SocketLayer>, tx: Sender<Event>) {
+     loop {
+         let packets = handle.recv_ex(1); // FIXME: more?
+         match packets {
+             Ok(packets) => {
+                 for packet in packets {
+-                    if tx.send(Event::SocketInfo(packet.address)).is_err() {
++                    if tx.blocking_send(Event::SocketInfo(packet.address)).is_err() {
+                         return; // main thread shut down.
+                     }
+                 }
+@@ -453,7 +467,7 @@ fn relay_socket_events(handle: WinDivert<SocketLayer>, tx: UnboundedSender<Event
+ }
+ 
+ /// Repeatedly call WinDivertRecvEx to get network packets and feed them into the channel.
+-fn relay_network_events(handle: WinDivert<NetworkLayer>, tx: UnboundedSender<Event>) {
++fn relay_network_events(handle: WinDivert<NetworkLayer>, tx: Sender<Event>) {
+     const MAX_PACKETS: usize = 1;
+     let mut buf = [0u8; MAX_PACKET_SIZE * MAX_PACKETS];
+     loop {
+@@ -462,7 +476,7 @@ fn relay_network_events(handle: WinDivert<NetworkLayer>, tx: UnboundedSender<Eve
+             Ok(packets) => {
+                 for packet in packets {
+                     if tx
+-                        .send(Event::NetworkPacket(packet.address, packet.data.into()))
++                        .blocking_send(Event::NetworkPacket(packet.address, packet.data.into()))
+                         .is_err()
+                     {
+                         return; // main thread shut down.
+@@ -483,7 +497,7 @@ async fn insert_into_connections(
+     event: &WinDivertEvent,
+     connections: &mut LruCache<ConnectionId, ConnectionState>,
+     inject_handle: &WinDivert<NetworkLayer>,
+-    ipc_tx: &mut UnboundedSender<ipc::PacketWithMeta>,
++    ipc_tx: &mut Sender<ipc::PacketWithMeta>,
+ ) -> Result<()> {
+     debug!("Adding: {} with {:?} ({:?})", &connection_id, action, event);
+     // no matter which action we do, the reverse direction is whitelisted.
+@@ -512,7 +526,7 @@ async fn process_packet(
+     mut packet: InternetPacket,
+     action: &ConnectionAction,
+     inject_handle: &WinDivert<NetworkLayer>,
+-    ipc_tx: &mut UnboundedSender<ipc::PacketWithMeta>,
++    ipc_tx: &mut Sender<ipc::PacketWithMeta>,
+ ) -> Result<()> {
+     match action {
+         ConnectionAction::None => {
+@@ -555,7 +569,7 @@ async fn process_packet(
+                     pid: Some(*pid),
+                     process_name: process_name.clone(),
+                 }),
+-            })?;
++            }).await?;
+         }
+     }
+     Ok(())
+diff --git a/src/network/tcp.rs b/src/network/tcp.rs
+index 1a5d5f2..cd0f1b4 100644
+--- a/src/network/tcp.rs
++++ b/src/network/tcp.rs
+@@ -3,7 +3,6 @@ use std::net::SocketAddr;
+ use std::{cmp, fmt};
+ 
+ use anyhow::Result;
+-use pretty_hex::pretty_hex;
+ use smoltcp::iface::{Config, SocketSet};
+ use smoltcp::socket::{Socket, tcp};
+ use smoltcp::wire::{HardwareAddress, Ipv6Address};
+@@ -111,8 +110,7 @@ impl TcpHandler<'_> {
+             }
+             // packet with incorrect length
+             Err(e) => {
+-                log::debug!("Received invalid TCP packet ({e}) with payload:");
+-                log::debug!("{}", pretty_hex(&packet.payload_mut()));
++                log::debug!("Received invalid TCP packet ({e})");
+                 return Ok(());
+             }
+         };
+@@ -124,6 +122,8 @@ impl TcpHandler<'_> {
+             && !tcp_packet.ack()
+             && !self.active_connections.contains(&(src_addr, dst_addr))
+         {
++            // Bound half-open and active sockets before allocating their buffers.
++            if self.socket_data.len() >= 256 { return Ok(()); }
+             let mut socket = tcp::Socket::new(
+                 tcp::SocketBuffer::new(vec![0u8; 64 * 1024]),
+                 tcp::SocketBuffer::new(vec![0u8; 64 * 1024]),
+@@ -191,6 +191,11 @@ impl TcpHandler<'_> {
+ 
+     pub fn write_data(&mut self, id: ConnectionId, buf: Vec<u8>) {
+         if let Some(data) = self.socket_data.get_mut(&id) {
++            if data.send_buffer.len() + buf.len() > 128 * 1024 {
++                data.send_buffer.clear();
++                self.sockets.get_mut::<tcp::Socket>(data.handle).abort();
++                return;
++            }
+             data.send_buffer.extend(buf);
+         } else {
+             // connection is has already been removed because the connection is closed,
+@@ -207,8 +212,13 @@ impl TcpHandler<'_> {
+         }
+     }
+ 
+-    pub fn close_connection(&mut self, id: ConnectionId, _half_close: bool) {
++    pub fn close_connection(&mut self, id: ConnectionId, half_close: bool) {
+         if let Some(data) = self.socket_data.get_mut(&id) {
++            if !half_close {
++                data.send_buffer.clear();
++                self.sockets.get_mut::<tcp::Socket>(data.handle).abort();
++                return;
++            }
+             // smoltcp does not have a good way to do a full close ("SHUT_RDWR"). We can't call
+             // .abort() here because that sends a RST instead of a FIN (and breaks
+             // retransmissions of the connection close packet). Alternatively, we could manually
+@@ -287,6 +297,7 @@ impl TcpHandler<'_> {
+             // either when drain has been requested explicitly, or when socket is being closed
+             // TODO: benchmark different variants here. (e.g. only return on half capacity)
+             if (!data.drain_waiter.is_empty() || data.write_eof)
++                && data.send_buffer.is_empty()
+                 && socket.send_queue() < socket.send_capacity()
+             {
+                 for waiter in data.drain_waiter.drain(..) {
+diff --git a/src/network/udp.rs b/src/network/udp.rs
+index 3527757..8f409c3 100644
+--- a/src/network/udp.rs
++++ b/src/network/udp.rs
+@@ -27,7 +27,7 @@ impl ConnectionState {
+             drop(data);
+         } else if let Some(tx) = self.read_tx.take() {
+             tx.send(data).ok();
+-        } else {
++        } else if self.packets.len() < 2 {
+             self.packets.push_back(data);
+         }
+     }
+@@ -72,8 +72,8 @@ impl UdpHandler {
+         // This implementation is largely based on the fact that LruCache eventually
+         // drops the state, which closes the respective channels.
+         Self {
+-            connections: LruCache::with_expiry_duration(UDP_TIMEOUT),
+-            id_lookup: LruCache::with_expiry_duration(UDP_TIMEOUT),
++            connections: LruCache::with_expiry_duration_and_capacity(UDP_TIMEOUT, 256),
++            id_lookup: LruCache::with_expiry_duration_and_capacity(UDP_TIMEOUT, 256),
+             connection_id_generator: ConnectionIdGenerator::udp(),
+         }
+     }
+@@ -267,6 +267,28 @@ mod tests {
+     use std::str::FromStr;
+     use tokio::net::UdpSocket;
+ 
++    #[tokio::test]
++    async fn denied_udp_state_and_pending_packets_are_bounded() {
++        let mut handler = UdpHandler::new();
++        let (tx, mut rx) = tokio::sync::mpsc::channel(1);
++        for port in 1000..2000 {
++            handler.receive_data(UdpPacket {
++                src_addr: SocketAddr::from(([127,0,0,1], port)),
++                dst_addr: SocketAddr::from(([127,0,0,1], 443)),
++                payload: vec![0; 1024],
++            }, TunnelInfo::LocalRedirector { pid: Some(123), process_name: None, remote_endpoint: None }, tx.reserve().await.unwrap());
++            let TransportEvent::ConnectionEstablished { connection_id, .. } = rx.recv().await.unwrap();
++            handler.close_connection(connection_id);
++        }
++        assert!(handler.connections.len() <= 256);
++        assert!(handler.id_lookup.len() <= 256);
++        let mut state = ConnectionState::default();
++        for _ in 0..1000 { state.add_packet(vec![0;1024]); }
++        assert_eq!(state.packets.len(), 2);
++        state.close();
++        assert!(state.packets.is_empty());
++    }
++
+     #[test]
+     fn test_connection_state_recv_recv_read_read() {
+         let mut state = ConnectionState::default();
+diff --git a/src/packet_sources/mod.rs b/src/packet_sources/mod.rs
+index e8a7c27..573a69a 100755
+--- a/src/packet_sources/mod.rs
++++ b/src/packet_sources/mod.rs
+@@ -47,86 +47,69 @@ pub const IPC_BUF_SIZE: usize = MAX_PACKET_SIZE + 1024;
+ /// Feed packets from a socket into smol, and the other way around.
+ #[allow(dead_code)]
+ async fn forward_packets<T: AsyncRead + AsyncWrite + Unpin>(
+-    mut channel: T,
++    channel: T,
+     transport_events_tx: Sender<TransportEvent>,
+     transport_commands_rx: UnboundedReceiver<TransportCommand>,
+     mut conf_rx: UnboundedReceiver<InterceptConf>,
+     shutdown: shutdown::Receiver,
+ ) -> Result<()> {
+-    let mut buf = Vec::with_capacity(IPC_BUF_SIZE);
++    let (mut reader, mut writer) = tokio::io::split(channel);
+     let (mut network_task_handle, net_tx, mut net_rx) =
+         add_network_layer(transport_events_tx, transport_commands_rx, shutdown);
+ 
+-    loop {
+-        buf.clear();
+-        tokio::select! {
+-            // Monitor the network task for errors or planned shutdown.
+-            // This way we implicitly monitor the shutdown channel.
+-            exit = &mut network_task_handle => break exit.context("network task panic")?.context("network task error")?,
+-            // pipe through changes to the intercept list
+-            Some(conf) = conf_rx.recv() => {
+-                let msg = ipc::FromProxy {
+-                    message: Some(ipc::from_proxy::Message::InterceptConf(conf.into())),
+-                };
+-                msg.encode(&mut buf)?;
+-                channel.write_all(&buf).await.context("failed to propagate interception config update")?;
+-            },
+-            // read packets from the IPC pipe into our network stack.
+-            _ = channel.read_buf(&mut buf) => {
+-                if buf.is_empty() {
+-                    // https://learn.microsoft.com/en-us/windows/win32/ipc/named-pipe-client
+-                    // Because the client is reading from the pipe in message-read mode, it is
+-                    // possible for the ReadFile operation to return zero after reading a partial
+-                    // message. This happens when the message is larger than the read buffer.
+-                    //
+-                    // We don't support messages larger than the buffer, so this cannot happen.
+-                    // Instead, empty reads indicate that the IPC client has disconnected.
+-                    return Err(anyhow!("redirect daemon exited prematurely."));
+-                }
+-
+-                let Ok(PacketWithMeta { data, tunnel_info}) = PacketWithMeta::decode(buf.as_slice()) else {
+-                    return Err(anyhow!("Received invalid IPC message from redirector: {:?}", &buf));
+-                };
+-
+-                // TODO: Use Bytes in SmolPacket to avoid copy
+-                let data = data.to_vec();
+-
+-                let Ok(mut packet) = SmolPacket::try_from(data) else {
+-                    log::error!("Skipping invalid packet: {:?}", &buf);
+-                    continue;
+-                };
+-
+-                // debug!("Receiving packet: {:?}", &packet);
+-
+-                // WinDivert packets do not have correct IP checksums yet, we need fix that here
+-                // otherwise smoltcp will be unhappy with us.
+-                packet.fill_ip_checksum();
+-
+-                let event = NetworkEvent::ReceivePacket {
+-                    packet,
+-                    tunnel_info: TunnelInfo::LocalRedirector {
+-                        pid: tunnel_info.as_ref().and_then(|t| t.pid),
+-                        process_name: tunnel_info.and_then(|t| t.process_name),
+-                        remote_endpoint: None,
+-                    },
+-                };
+-                if net_tx.try_send(event).is_err() {
+-                    log::warn!("Dropping incoming packet, TCP channel is full.")
+-                };
+-            },
+-            // write packets from the network stack to the IPC pipe to be reinjected.
+-            Some(e) = net_rx.recv() => {
+-                match e {
+-                    NetworkCommand::SendPacket(packet) => {
+-                        let packet = ipc::FromProxy { message: Some(ipc::from_proxy::Message::Packet( ipc::Packet { data: Bytes::from(packet.into_inner()) }))};
+-                        packet.encode(&mut buf)?;
+-                        // debug!("Sending packet: {} {:?}", buf.len(), &packet.message.as_ref().unwrap());
+-                        channel.write_all(&buf).await.context("failed to send packet")?;
+-                    }
+-                }
++    // Read and write must make progress independently. A blocked IPC write must
++    // never stop draining the reverse direction and form a bounded-queue cycle.
++    let receive = async {
++        let mut buf = Vec::with_capacity(IPC_BUF_SIZE);
++        loop {
++            buf.clear();
++            reader.read_buf(&mut buf).await.context("redirector IPC read failed")?;
++            if buf.is_empty() { return Err::<(), anyhow::Error>(anyhow!("redirect daemon exited prematurely")); }
++            let PacketWithMeta { data, tunnel_info } = PacketWithMeta::decode(buf.as_slice())
++                .context("invalid redirector IPC message")?;
++            let Ok(mut packet) = SmolPacket::try_from(data.to_vec()) else {
++                log::warn!("Skipping invalid packet");
++                continue;
++            };
++            // This vendored runtime is TCP-only. Drop captured UDP/QUIC before
++            // allocating transport state or commands, including under saturation.
++            if packet.transport_protocol() != smoltcp::wire::IpProtocol::Tcp {
++                continue;
+             }
++            packet.fill_ip_checksum();
++            let event = NetworkEvent::ReceivePacket {
++                packet,
++                tunnel_info: TunnelInfo::LocalRedirector {
++                    pid: tunnel_info.as_ref().and_then(|t| t.pid),
++                    process_name: tunnel_info.and_then(|t| t.process_name),
++                    remote_endpoint: None,
++                },
++            };
++            if net_tx.try_send(event).is_err() {
++                log::warn!("Dropping incoming packet, TCP channel is full");
++            }
++        }
++    };
++    let send = async {
++        let mut buf = Vec::with_capacity(IPC_BUF_SIZE);
++        loop {
++            buf.clear();
++            let message = tokio::select! {
++                Some(conf) = conf_rx.recv() => ipc::from_proxy::Message::InterceptConf(conf.into()),
++                Some(NetworkCommand::SendPacket(packet)) = net_rx.recv() =>
++                    ipc::from_proxy::Message::Packet(ipc::Packet { data: Bytes::from(packet.into_inner()) }),
++                else => return Ok::<(), anyhow::Error>(()),
++            };
++            ipc::FromProxy { message: Some(message) }.encode(&mut buf)?;
++            writer.write_all(&buf).await.context("redirector IPC write failed")?;
+         }
+-    }
+-    log::info!("Redirector shutting down.");
+-    Ok(())
++    };
++    let result = tokio::select! {
++        exit = &mut network_task_handle => exit.context("network task panic")?.context("network task error"),
++        result = receive => result,
++        result = send => result,
++    };
++    network_task_handle.abort();
++    log::info!("Redirector shutting down");
++    result
+ }

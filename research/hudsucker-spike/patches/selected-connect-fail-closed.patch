@@ -1,0 +1,45 @@
+--- a/src/proxy/internal.rs
++++ b/src/proxy/internal.rs
+@@ -174,8 +174,19 @@
+                     match hyper::upgrade::on(&mut req).await {
+                         Ok(upgraded) => {
+                             let mut upgraded = TokioIo::new(upgraded);
++                            let intercept = self
++                                .http_handler
++                                .should_intercept_connect(&self.context(), &req)
++                                .await;
+                             let mut buffer = [0; 4];
+-                            let bytes_read = match upgraded.read(&mut buffer).await {
++                            // A short TCP read is not a complete protocol discriminator.
++                            // Preserve arbitrary opaque protocols for excluded destinations.
++                            let read = if intercept {
++                                upgraded.read_exact(&mut buffer).await
++                            } else {
++                                upgraded.read(&mut buffer).await
++                            };
++                            let bytes_read = match read {
+                                 Ok(bytes_read) => bytes_read,
+                                 Err(e) => {
+                                     error!(
+@@ -189,11 +200,7 @@
+                             let prefix = ArrayPrefix::new(buffer, bytes_read);
+                             let mut upgraded = Rewind::new(prefix, upgraded);
+ 
+-                            if self
+-                                .http_handler
+-                                .should_intercept_connect(&self.context(), &req)
+-                                .await
+-                            {
++                            if intercept {
+                                 if buffer == *b"GET " {
+                                     if let Err(e) = self
+                                         .serve_stream(
+@@ -304,6 +311,8 @@
+                                         "Unknown protocol, read '{:02X?}' from upgraded connection",
+                                         &buffer[..bytes_read]
+                                     );
++                                    // A selected CONNECT must never fall back to an opaque tunnel.
++                                    return;
+                                 }
+                             }
+ 

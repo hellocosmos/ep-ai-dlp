@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "dependencies": {
+    "net10.0": {
+      "Titanium.Web.Proxy": {
+        "type": "Direct",
+        "requested": "[7.0.14, )",
+        "resolved": "7.0.14",
+        "contentHash": "onCoXz/HMM3NM1VByluZv+iVMWnTDhLP1t+o/O/AU9QWE2H6+y5LRDt6j3Q0St+7Om2nL5IozvdN8F88QYEJ6g==",
+        "dependencies": {
+          "BouncyCastle.Cryptography": "2.6.2",
+          "Titanium.Web.Proxy.Abstractions": "7.0.14"
+        }
+      },
+      "BouncyCastle.Cryptography": {
+        "type": "Transitive",
+        "resolved": "2.6.2",
+        "contentHash": "7oWOcvnntmMKNzDLsdxAYqApt+AjpRpP2CShjMfIa3umZ42UQMvH0tl1qAliYPNYO6vTdcGMqnRrCPmsfzTI1w=="
+      },
+      "Titanium.Web.Proxy.Abstractions": {
+        "type": "Transitive",
+        "resolved": "7.0.14",
+        "contentHash": "4fetpHGiu6ajEHLuvoDozr7HODqQoo8Kj5y+wYMzize48495Q6EXG64GFh1w8BTYvvQomKFs7DP0MAvl2d1cHQ=="
+      }
+    }
+  }
+}

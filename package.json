@@ -1,0 +1,17 @@
+{
+  "name": "@aidlp/workspace",
+  "private": true,
+  "workspaces": ["apps/*", "services/*", "packages/*"],
+  "engines": {"node": ">=22.19.0"},
+  "scripts": {
+    "build": "npm run build -w @aidlp/contracts && npm run build -w @aidlp/control-plane && npm run build -w @aidlp/console",
+    "build:server": "npm run build -w @aidlp/contracts && npm run build -w @aidlp/control-plane",
+    "test:server": "npm run build:server && npm run test -w @aidlp/control-plane",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "dev:server": "node --env-file=.local/managed.env services/control-plane/dist/main.js",
+    "dev:console": "node --env-file=.local/managed.env node_modules/next/dist/bin/next dev apps/console -p 3100 -H 127.0.0.1",
+    "start:console": "node --env-file=.local/managed.env node_modules/next/dist/bin/next start apps/console -p 3100 -H 127.0.0.1",
+    "bootstrap": "node scripts/bootstrap-managed.mjs"
+  },
+  "devDependencies": {"typescript": "^5.9.3", "@types/node": "^22.19.0"}
+}

@@ -1,0 +1,35 @@
+[package]
+name = "windows-redirector"
+license = "LGPL-3.0-or-later"
+authors.workspace = true
+version.workspace = true
+repository.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[target.'cfg(windows)'.dependencies]
+mitmproxy = { path = "../../" }
+tokio = { version = "1.52", features = ["macros", "net", "rt-multi-thread", "sync", "io-util"] }
+anyhow = { version = "1.0.102", features = ["backtrace"] }
+windivert = "0.6.0"
+lru_time_cache = "0.11.11"
+log = "0.4.31"
+env_logger = "0.11.10"
+prost = "0.14.3"
+internet-packet = { version = "0.2.2", features = ["checksums"] }
+
+[target.'cfg(windows)'.dev-dependencies]
+hex = "0.4.3"
+
+[target.'cfg(windows)'.build-dependencies]
+winres = "0.1.12"
+
+[package.metadata.winres]
+ProductName = "Mitmproxy Redirector"
+FileDescription = "Transparently redirect traffic to a mitmproxy instance"

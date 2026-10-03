@@ -1,0 +1,9 @@
+{
+  "crate": "hudsucker",
+  "version": "0.25.0",
+  "crate_sha256": "3a1d7c1c828ff6db12ddafb16768ecbac920df6301778d0eb78e95da0e44d94b",
+  "manifest_only_change": "tokio-rustls default-features=false; explicit ring provider in adapter; engine Rust source unchanged",
+  "engine_source_patch": "patches/selected-connect-fail-closed.patch",
+  "upstream_internal_rs_sha256": "4c6570ba327ff228974ef7a611a76fb47c9a8d62bf9466af1cb5370421169b42",
+  "patched_internal_rs_sha256": "e7ba9924e50530c804fbda89a3a0b1e044e8e304c7ce3aa4e507d789d30d5eb7"
+}

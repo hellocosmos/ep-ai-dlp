@@ -1,0 +1,13 @@
+'use client';
+import {useEffect,useRef,useState} from 'react';
+import Icon from './Icon';
+import {api,date} from './types';
+type Enrollment={token:string;expires_at:string;server_url:string;tenant_id:string;public_key_base64:string;key_id:string;ca_pem:string|null};
+export default function Enrollment({onClose,onError}:{onClose:()=>void;onError:(error:unknown)=>void}){
+  const [name,setName]=useState('WINDOWS-PILOT');const [issued,setIssued]=useState<Enrollment|null>(null);const [busy,setBusy]=useState(false);const dialog=useRef<HTMLDialogElement>(null);
+  useEffect(()=>{dialog.current?.showModal();},[]);
+  async function issue(){setBusy(true);try{setIssued(await api<Enrollment>('admin/enrollments',{}));}catch(error){onError(error);}finally{setBusy(false);}}
+  function download(){if(!issued)return;const data={server_url:issued.server_url,enrollment_token:issued.token,tenant_id:issued.tenant_id,public_key_base64:issued.public_key_base64,key_id:issued.key_id,ca_pem:issued.ca_pem,device_name:name,allow_insecure_loopback:issued.server_url.startsWith('http://')};
+    const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));const anchor=document.createElement('a');anchor.href=url;anchor.download='enrollment.json';anchor.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+  return <dialog ref={dialog} onCancel={onClose} className="modal"><div className="modal-heading"><div className="icon-box"><Icon name="devices"/></div><button className="icon-button" aria-label="Close" onClick={onClose}><Icon name="close"/></button></div><h2>Connect a Windows device</h2><p>Create a one-time enrollment file and transfer it to the target device.</p><label className="field">Device name<input value={name} onChange={e=>setName(e.target.value)} maxLength={80} placeholder="FINANCE-PC-01" pattern="[a-zA-Z0-9][a-zA-Z0-9_. -]*"/></label>{issued?<><div className="note"><Icon name="check"/><div><strong>Enrollment file ready</strong><p>{date(issued.expires_at)} expiry. This file contains credentials: transfer it securely and delete it after enrollment.</p></div></div><button className="button primary full" onClick={download} disabled={!/^[a-zA-Z0-9][a-zA-Z0-9_. -]{0,79}$/.test(name)}><Icon name="download"/>Download enrollment file</button><p className="help">Pass this file to the agent enrollment command. macOS capture is not implemented.</p></>:<button className="button primary full" disabled={busy||!/^[a-zA-Z0-9][a-zA-Z0-9_. -]{0,79}$/.test(name)} onClick={issue}>{busy?'Preparing…':'Create enrollment file'}<Icon name="arrow" size={17}/></button>}</dialog>;
+}

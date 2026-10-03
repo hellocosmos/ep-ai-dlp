@@ -1,0 +1,110 @@
+use anyhow::{Result, bail};
+use objc2_app_kit::NSRunningApplication;
+use std::collections::HashMap;
+use std::collections::hash_map::DefaultHasher;
+use std::collections::hash_map::Entry;
+use std::hash::{Hash, Hasher};
+use std::io::Cursor;
+use std::path::Path;
+use std::path::PathBuf;
+use sysinfo::{ProcessRefreshKind, ProcessesToUpdate, System, UpdateKind};
+
+#[derive(Default)]
+pub struct IconCache {
+    /// executable name -> icon hash
+    executables: HashMap<PathBuf, u64>,
+    /// icon hash -> png bytes
+    icons: HashMap<u64, Vec<u8>>,
+}
+
+impl IconCache {
+    pub fn get_png(&mut self, executable: PathBuf) -> Result<&Vec<u8>> {
+        match self.executables.entry(executable) {
+            Entry::Occupied(e) => {
+                // Guaranteed to exist because we never clear the cache.
+                Ok(self.icons.get(e.get()).unwrap())
+            }
+            Entry::Vacant(e) => {
+                let tiff = tiff_data_for_executable(e.key())?;
+                let mut hasher = DefaultHasher::new();
+                tiff.hash(&mut hasher);
+                let tiff_hash = hasher.finish();
+                let icon = match self.icons.entry(tiff_hash) {
+                    Entry::Occupied(e) => e.into_mut(),
+                    Entry::Vacant(e) => {
+                        let png = tiff_to_png(&tiff)?;
+                        e.insert(png)
+                    }
+                };
+                e.insert(tiff_hash);
+                Ok(icon)
+            }
+        }
+    }
+}
+
+pub fn tiff_to_png(tiff: &[u8]) -> Result<Vec<u8>> {
+    let mut c = Cursor::new(Vec::new());
+    let tiff_image = image::load_from_memory_with_format(tiff, image::ImageFormat::Tiff)?.resize(
+        32,
+        32,
+        image::imageops::FilterType::Triangle,
+    );
+    tiff_image.write_to(&mut c, image::ImageFormat::Png)?;
+    Ok(c.into_inner())
+}
+
+pub fn tiff_data_for_executable(executable: &Path) -> Result<Vec<u8>> {
+    let mut sys = System::new();
+    sys.refresh_processes_specifics(
+        ProcessesToUpdate::All,
+        true,
+        ProcessRefreshKind::nothing().with_exe(UpdateKind::OnlyIfNotSet),
+    );
+    for (pid, process) in sys.processes() {
+        // process.exe() will return empty path if there was an error while trying to read /proc/<pid>/exe.
+        if let Some(path) = process.exe()
+            && executable == path.to_path_buf()
+        {
+            let pid = pid.as_u32() as i32;
+            if let Some(app) = NSRunningApplication::runningApplicationWithProcessIdentifier(pid)
+                && let Some(img) = app.icon()
+                && let Some(tiff) = img.TIFFRepresentation()
+            {
+                return Ok(tiff.to_vec());
+            }
+        }
+    }
+    bail!("unable to extract icon");
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use data_encoding::BASE64;
+
+    #[test]
+    fn png() {
+        let path = PathBuf::from("/System/Library/CoreServices/Finder.app/Contents/MacOS/Finder");
+        let mut icon_cache = IconCache::default();
+        let vec = match icon_cache.get_png(path) {
+            Ok(x) => x,
+            Err(e) => {
+                // https://github.com/image-rs/image/issues/2795
+                assert!(format!("{e:?}").contains("Unhandled TIFF sample format 3 for 16 bits"));
+                return;
+            }
+        };
+        assert!(!vec.is_empty());
+        let base64_png = BASE64.encode(vec);
+    }
+
+    #[ignore]
+    #[test]
+    fn memory_leak() {
+        let path = PathBuf::from("/System/Library/CoreServices/Finder.app/Contents/MacOS/Finder");
+        for _ in 0..500 {
+            _ = &tiff_data_for_executable(&path);
+        }
+    }
+}

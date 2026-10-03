@@ -1,0 +1,3 @@
+native/third_party/** linguist-vendored
+research/hudsucker-spike/vendor/** linguist-vendored
+*.png binary

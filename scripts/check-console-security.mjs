@@ -1,0 +1,18 @@
+import {readFile} from 'node:fs/promises';
+import {parseEnv} from 'node:util';
+import assert from 'node:assert/strict';
+const env=parseEnv(await readFile('.local/managed.env','utf8')),base=env.AIDLP_CONSOLE_ORIGIN||'http://127.0.0.1:3100';
+const login={username:env.AIDLP_ADMIN_USER,password:env.AIDLP_ADMIN_PASSWORD};
+const post=(route,body,origin,cookie)=>fetch(`${base}/api/${route}`,{method:'POST',headers:{'content-type':'application/json',...(origin?{origin}:{}),...(cookie?{cookie}:{})},body:JSON.stringify(body)});
+assert.equal((await post('auth/login',login,'https://untrusted.example')).status,403);
+assert.equal((await fetch(`${base}/api/admin/overview`)).status,401);
+const response=await post('auth/login',login,base);assert.equal(response.status,200);
+const cookie=response.headers.get('set-cookie');assert(cookie?.includes('HttpOnly'));assert(cookie?.includes('SameSite=strict'));
+assert.equal((await response.json()).session,undefined);
+const credential=cookie.split(';')[0];
+assert.equal((await fetch(`${base}/api/admin/overview`,{headers:{cookie:credential}})).status,200);
+assert.equal((await post('admin/policy',{},undefined,credential)).status,403);
+assert.equal((await post('device/report',{},base,credential)).status,404);
+assert((await post('auth/logout',{},base,credential)).ok);
+assert.equal((await fetch(`${base}/api/admin/overview`,{headers:{cookie:credential}})).status,401);
+console.log('PASS: console origin enforcement, cookie isolation, route allowlist and server-side logout');
