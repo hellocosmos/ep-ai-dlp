@@ -1,0 +1,7 @@
+{
+  "scope": "Six development inputs repeated in two clean native MPS model loads, not a test-set accuracy estimate",
+  "n": 6,
+  "argmax_same": 6,
+  "max_probability_delta": 0.0,
+  "passed": true
+}

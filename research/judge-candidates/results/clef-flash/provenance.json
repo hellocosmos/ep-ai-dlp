@@ -1,0 +1,16 @@
+{
+  "revision": "17f0b0ad64efb65d273590632833508766b2aae6",
+  "files": {
+    ".local/clef-flash/evaluate.py": "99ca24248301351cd138e69255bda58cedaa0e02f05c2168e3617d2a05556092",
+    ".local/clef-flash/source/joint_schema_model.py": "0e304cf7c6500e8bb59bef7e2afd2c6373f82596dfb3b57d1aa93c175e2dc3a3",
+    ".local/clef-flash/source/config.json": "66f87f6fb2616b46604daf2a9c67ddc87938296d07156efa34d59b5be49e3238",
+    ".local/clef-flash/source/joint_head_config.json": "77efe959a38b5b17b241543e129e695f3c77465ece55a25985279bd8176279a0",
+    "judge/training/data/v1/manifest.json": "56bc1c6d0655020a443222588479820e4baf9e05673386f59c776504c27d43f6",
+    ".local/clef-flash/summarize.py": "c29e0a4a422e152a44c2a03e8cedcac412be92db7cf4788521aa47d59deb057b",
+    ".local/clef-flash/report.py": "f860ee54ec0b066933fe0ba1e9294ed60a509a535934c0fc36dd8cc72b2ad1ed"
+  },
+  "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+  "chip": "Apple M4 Max",
+  "ram_bytes": 38654705664,
+  "report_sha256": "e773f7592d4cc04818323fc424b85219a26ff9e175eb3b70bbbc64bd4b93f2b3"
+}

@@ -1,0 +1,17 @@
+{
+  "repo": "Cloudflare/clef-flash",
+  "revision": "17f0b0ad64efb65d273590632833508766b2aae6",
+  "dtype": "BF16",
+  "torch": "2.14.1",
+  "transformers": "5.17.0",
+  "device": "mps",
+  "hardware": "macOS-27.0.1-arm64-arm-64bit",
+  "mode": "published original, single-policy text-only, no fine-tuning",
+  "transport": "direct function call; not HTTP latency",
+  "parameter_bytes": 19063153128,
+  "parameter_devices": [
+    "mps:0"
+  ],
+  "allocator_note": "MPS current_allocated_memory may exclude memory-mapped backbone weights; do not use it as total model memory.",
+  "source_sha256": "0e304cf7c6500e8bb59bef7e2afd2c6373f82596dfb3b57d1aa93c175e2dc3a3"
+}

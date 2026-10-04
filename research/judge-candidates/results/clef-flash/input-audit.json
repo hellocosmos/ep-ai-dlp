@@ -1,0 +1,26 @@
+{
+  "dev": {
+    "n": 356,
+    "tokens_min": 242,
+    "tokens_max": 314,
+    "truncated": 0,
+    "labels_in_input": false,
+    "dataset_sha256": "c0adc2ebc8e4b3a5bd0b26b07bebef75dfb453f2be856c42aae49147c8037a2d"
+  },
+  "calibration": {
+    "n": 428,
+    "tokens_min": 237,
+    "tokens_max": 306,
+    "truncated": 0,
+    "labels_in_input": false,
+    "dataset_sha256": "c9bea5286f4de129111a992efdff426b4030c436894abcffdbd8f2910a06ec38"
+  },
+  "test": {
+    "n": 736,
+    "tokens_min": 242,
+    "tokens_max": 421,
+    "truncated": 0,
+    "labels_in_input": false,
+    "dataset_sha256": "957e765625c4c643115f397f8e9b17d1a82b09d4c53d732ac9ddd2055d0456f5"
+  }
+}

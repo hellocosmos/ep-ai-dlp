@@ -37,6 +37,7 @@ Measured on the same Apple M4 Max, BF16, 736 reused synthetic test decisions fro
 - [Training corpus and pipeline](judge/training/README.md)
 - [Full six-condition results and operating-point tradeoffs](research/judge-candidates/SMALL_MODEL_FINETUNING.md)
 - [Published synthetic measurement snapshot](research/judge-candidates/results/small-bf16/)
+- [Clef-Flash 9B original-checkpoint evaluation](research/judge-candidates/CLEF_FLASH_EVALUATION.md) — 88.72% on the same reused synthetic test; a separate runtime, with no endpoint integration.
 
 ## Console in action
 

@@ -1,0 +1,9 @@
+{
+  "thresholds": {
+    "allow": 0.7199,
+    "block": 0.8326
+  },
+  "selection_source": "428 calibration rows only",
+  "calibration_sha256": "6167e2ccf886e1dbb1b70eab721f1d2fec22b59484b0e0f4babf252cd081529f",
+  "test_file_bytes_when_frozen": 0
+}
